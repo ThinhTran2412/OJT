@@ -81,13 +81,16 @@ namespace IAM_Service.Infrastructure
         
         private static string ConvertPostgresUrlToConnectionString(string url)
         {
-            // URL kiểu: postgresql://user:pass@host:port/db
+            // URL kiểu: postgresql://user:pass@host:port/db hoặc postgresql://user:pass@host/db
             var uri = new Uri(url);
             var userInfo = uri.UserInfo.Split(':');
             var username = userInfo[0];
             var password = userInfo.Length > 1 ? userInfo[1] : "";
 
-            return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={username};Password={password};Ssl Mode=Require;Trust Server Certificate=true";
+            // Nếu không có port trong URL, dùng port mặc định 5432 cho PostgreSQL
+            var port = uri.Port == -1 ? 5432 : uri.Port;
+
+            return $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={username};Password={password};Ssl Mode=Require;Trust Server Certificate=true";
         }
 
     }
