@@ -38,9 +38,8 @@ namespace IAM_Service.API
                     if (builder.Environment.IsProduction())
                     {
                         // In production, allow requests from Render frontend URL
-                        // Update this with your actual frontend URL on Render
                         policy.WithOrigins(
-                            "https://your-frontend.onrender.com",
+                            "https://ojt-invc.onrender.com",
                             "http://localhost:5173", // Vite dev server
                             "http://localhost:3000"  // Alternative dev port
                         );
