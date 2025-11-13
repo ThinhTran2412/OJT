@@ -3,6 +3,23 @@
 ## URL Frontend
 - **Production URL**: `https://ojt-invc.onrender.com`
 
+## Cấu hình Render Service Settings
+
+### Bước 0: Cấu hình Build và Start Commands
+1. Vào Render Dashboard → Chọn Frontend service (`ojt-invc`)
+2. Vào tab **"Settings"**
+3. Cấu hình các settings sau:
+
+   **Build Command**: `npm install && npm run build`
+   
+   **Start Command**: `npm start`
+   
+   **Root Directory**: `Multiple_Service/Front_end` (nếu repo root là Deploy)
+   
+   ⚠️ **Lưu ý**: 
+   - Nếu repo root là `Multiple_Service`, thì Root Directory là `Front_end`
+   - Nếu repo root là `Deploy`, thì Root Directory là `Multiple_Service/Front_end`
+
 ## Cấu hình Environment Variables trên Render
 
 ### Bước 1: Xác định URL của IAM Service

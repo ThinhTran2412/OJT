@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s dist -l 10000"
   },
   "dependencies": {
     "antd": "^5.27.5",
@@ -14,6 +15,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
+    "serve": "^14.2.1",
     "uuid": "^13.0.0",
     "zustand": "^5.0.8"
   },
