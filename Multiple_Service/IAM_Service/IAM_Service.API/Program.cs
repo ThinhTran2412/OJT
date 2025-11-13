@@ -15,17 +15,50 @@ namespace IAM_Service.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure Kestrel for Production - use port 8080 (Render default)
+            // Support both HTTP/1.1 (for REST API/frontend) and HTTP/2 (for gRPC)
             if (builder.Environment.IsProduction())
             {
                 builder.WebHost.ConfigureKestrel(options =>
                 {
-                    // Override endpoints for Production - only HTTP on port 8080
+                    // Single endpoint supporting both HTTP/1.1 and HTTP/2
+                    // HTTP/1.1 for REST API calls from frontend
+                    // HTTP/2 for gRPC service-to-service communication
                     options.ListenAnyIP(8080, listenOptions =>
                     {
-                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
                     });
                 });
             }
+
+            // Add CORS for frontend
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    if (builder.Environment.IsProduction())
+                    {
+                        // In production, allow requests from Render frontend URL
+                        // Update this with your actual frontend URL on Render
+                        policy.WithOrigins(
+                            "https://your-frontend.onrender.com",
+                            "http://localhost:5173", // Vite dev server
+                            "http://localhost:3000"  // Alternative dev port
+                        );
+                    }
+                    else
+                    {
+                        // In development, allow localhost
+                        policy.WithOrigins(
+                            "http://localhost:5173",
+                            "http://localhost:3000",
+                            "https://localhost:5173"
+                        );
+                    }
+                    policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
+                    policy.AllowCredentials();
+                });
+            });
 
             // Add controllers and Swagger
             builder.Services.AddControllers();
@@ -80,6 +113,7 @@ namespace IAM_Service.API
             }
 
             // Middlewares
+            app.UseCors("AllowFrontend");
             app.UseSharePolicies();
             app.UseAuthentication();
             app.UseAuthorization();
