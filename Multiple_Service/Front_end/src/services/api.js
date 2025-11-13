@@ -1,10 +1,30 @@
 import axios from "axios";
 
 // Cấu hình Axios Chuẩn hiện tại 
+// In production, use VITE_API_BASE_URL environment variable
+// If not set, try to construct from current origin (for same-domain deployment)
+const getBaseURL = () => {
+  if (!import.meta.env.PROD) {
+    return "/api"; // Development: use proxy
+  }
+  
+  // Production: use environment variable or construct from origin
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+  
+  // Fallback: try to construct API URL from current origin
+  // This assumes API is on a subdomain or different path
+  const origin = window.location.origin;
+  // If frontend is on ojt-invc.onrender.com, API might be on iam-service.onrender.com
+  // You should set VITE_API_BASE_URL environment variable on Render instead
+  console.warn('VITE_API_BASE_URL not set! Please configure it on Render.');
+  return `${origin}/api`; // Fallback - may not work
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.PROD
-    ? import.meta.env.VITE_API_BASE_URL
-    : "/api",
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
