@@ -1,7 +1,9 @@
 # Hướng dẫn cấu hình Frontend trên Render
 
 ## URL Frontend
-- **Production URL**: `https://ojt-invc.onrender.com`
+- **Production URLs**: 
+  - `https://ojt-front-end.onrender.com` (main)
+  - `https://ojt-invc.onrender.com` (alternative)
 
 ## Cấu hình Render Service Settings
 

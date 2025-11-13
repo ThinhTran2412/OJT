@@ -17,9 +17,14 @@ const getBaseURL = () => {
   // Fallback: try to construct API URL from current origin
   // This assumes API is on a subdomain or different path
   const origin = window.location.origin;
-  // If frontend is on ojt-invc.onrender.com, API might be on iam-service.onrender.com
+  // If frontend is on ojt-front-end.onrender.com, API might be on iam-service.onrender.com
   // You should set VITE_API_BASE_URL environment variable on Render instead
-  console.warn('VITE_API_BASE_URL not set! Please configure it on Render.');
+  console.error('⚠️ VITE_API_BASE_URL not set! Frontend cannot connect to API.');
+  console.error('Please set VITE_API_BASE_URL environment variable on Render:');
+  console.error('  Key: VITE_API_BASE_URL');
+  console.error('  Value: https://your-iam-service-url.onrender.com/api');
+  console.error('Current origin:', origin);
+  console.error('Using fallback URL (may not work):', `${origin}/api`);
   return `${origin}/api`; // Fallback - may not work
 };
 
