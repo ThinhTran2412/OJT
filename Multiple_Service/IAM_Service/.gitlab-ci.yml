@@ -1,0 +1,15 @@
+stages:
+  - test
+
+dotnet_test_runner:
+  stage: test
+  tags:
+    - test
+  only:
+    - develop
+  script:
+    - echo "Checking .NET SDK..."
+    - dotnet --info
+    - echo "Restoring dependencies..."
+    - dotnet restore
+    - echo "DONE! Runner is working!"
