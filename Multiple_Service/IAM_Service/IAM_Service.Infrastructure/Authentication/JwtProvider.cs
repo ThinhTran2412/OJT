@@ -42,10 +42,10 @@ namespace IAM_Service.Infrastructure.Authentication
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
                 new Claim("identifyNumber", user.IdentifyNumber ?? ""),
                 new Claim("role", user.RoleId.ToString()),
-                new Claim(ClaimTypes.Name, user.FullName)
+                new Claim(ClaimTypes.Name, user.FullName ?? "")
 
             };
 
@@ -55,6 +55,10 @@ namespace IAM_Service.Infrastructure.Authentication
             }
 
             // Create a symmetric security key from the configured secret
+            if (string.IsNullOrEmpty(_options.SecretKey))
+            {
+                throw new InvalidOperationException("JWT SecretKey is not configured.");
+            }
             var signingKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_options.SecretKey)
             );

@@ -35,10 +35,10 @@ namespace IAM_Service.Infrastructure.EmailSenders
         /// <param name="configuration">The configuration.</param>
         public EmailSender(IConfiguration configuration)
         {
-            _smtpServer = configuration.GetValue<string>("SmtpSettings:SmtpServer", "");
+            _smtpServer = configuration.GetValue<string>("SmtpSettings:SmtpServer") ?? "";
             _smtpPort = configuration.GetValue<int>("SmtpSettings:SmtpPort", 587);
-            _smtpUsername = configuration.GetValue<string>("SmtpSettings:SmtpUsername", "");
-            _smtpPassword = configuration.GetValue<string>("SmtpSettings:SmtpPassword", "");
+            _smtpUsername = configuration.GetValue<string>("SmtpSettings:SmtpUsername") ?? "";
+            _smtpPassword = configuration.GetValue<string>("SmtpSettings:SmtpPassword") ?? "";
         }
 
         /// <summary>

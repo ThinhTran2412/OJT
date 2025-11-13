@@ -42,14 +42,14 @@ namespace IAM_Service.Infrastructure.Repositories
         /// </summary>
         /// <param name="email">The email.</param>
         /// <returns></returns>
-        public async Task<User> GetByEmailAsync(string email) =>
+        public async Task<User?> GetByEmailAsync(string email) =>
            await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         /// <summary>
         /// Retrieves a user by their password.
         /// </summary>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        public async Task<User> GetByPasswordAsync(string password) =>
+        public async Task<User?> GetByPasswordAsync(string password) =>
             await _dbContext.Users.FirstOrDefaultAsync(u => u.Password == password);
 
         /// <summary>
