@@ -14,6 +14,18 @@ namespace IAM_Service.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Configure Kestrel to disable HTTPS in Production (Render handles HTTPS at reverse proxy)
+            if (builder.Environment.IsProduction())
+            {
+                builder.WebHost.ConfigureKestrel(options =>
+                {
+                    options.ListenAnyIP(8080, listenOptions =>
+                    {
+                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+                    });
+                });
+            }
+
             // Add controllers and Swagger
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
