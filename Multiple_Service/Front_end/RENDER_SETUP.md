@@ -5,20 +5,23 @@
 
 ## Cấu hình Render Service Settings
 
-### Bước 0: Cấu hình Build và Start Commands
+### Bước 0: Cấu hình Build và Start Commands (QUAN TRỌNG!)
 1. Vào Render Dashboard → Chọn Frontend service (`ojt-invc`)
 2. Vào tab **"Settings"**
 3. Cấu hình các settings sau:
 
    **Build Command**: `npm install && npm run build`
    
-   **Start Command**: `npm start`
+   **Start Command**: `npm start` ⚠️ **PHẢI là `npm start` (KHÔNG phải `npm run dev`)**
    
    **Root Directory**: `Multiple_Service/Front_end` (nếu repo root là Deploy)
    
-   ⚠️ **Lưu ý**: 
+   ⚠️ **Lưu ý QUAN TRỌNG**: 
+   - **Start Command PHẢI là `npm start`** - Render đang chạy `npm run dev` (sai!)
    - Nếu repo root là `Multiple_Service`, thì Root Directory là `Front_end`
    - Nếu repo root là `Deploy`, thì Root Directory là `Multiple_Service/Front_end`
+   - `npm start` sẽ chạy `serve` để serve static files từ `dist` folder (production build)
+   - `npm run dev` là development server, không dùng cho production!
 
 ## Cấu hình Environment Variables trên Render
 
@@ -74,4 +77,16 @@ VITE_API_BASE_URL=https://iam-service-abc123.onrender.com/api
 ### API calls trả về 404
 - **Nguyên nhân**: URL không đúng hoặc thiếu `/api`
 - **Giải pháp**: Kiểm tra `VITE_API_BASE_URL` có đúng format: `https://service-url.onrender.com/api`
+
+### Lỗi: "Running 'npm run dev'" hoặc "Out of memory"
+- **Nguyên nhân**: Start Command trên Render đang là `npm run dev` thay vì `npm start`
+- **Giải pháp**: 
+  1. Vào Render Dashboard → Frontend service → Settings
+  2. Đổi **Start Command** từ `npm run dev` thành `npm start`
+  3. Save và redeploy
+  4. `npm start` sẽ serve static files (nhẹ hơn), `npm run dev` là dev server (nặng, không dùng cho production)
+
+### Lỗi: "No open ports detected"
+- **Nguyên nhân**: Port không được bind đúng
+- **Giải pháp**: Đảm bảo Start Command là `npm start` (đã cấu hình dùng `$PORT` từ Render)
 
