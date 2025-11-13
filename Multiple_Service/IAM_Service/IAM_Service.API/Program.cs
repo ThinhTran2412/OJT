@@ -14,11 +14,12 @@ namespace IAM_Service.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Configure Kestrel to disable HTTPS in Production (Render handles HTTPS at reverse proxy)
+            // Configure Kestrel for Production - use port 8080 (Render default)
             if (builder.Environment.IsProduction())
             {
                 builder.WebHost.ConfigureKestrel(options =>
                 {
+                    // Override endpoints for Production - only HTTP on port 8080
                     options.ListenAnyIP(8080, listenOptions =>
                     {
                         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
