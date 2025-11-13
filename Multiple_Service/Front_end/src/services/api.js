@@ -33,7 +33,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000, 
+  timeout: 30000, // Tăng timeout lên 30s cho production (Render có thể chậm hơn)
   withCredentials: false,
 });
 
@@ -43,6 +43,10 @@ api.interceptors.request.use(
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    // Log request URL in production for debugging
+    if (import.meta.env.PROD) {
+      console.log('API Request:', config.method?.toUpperCase(), config.url, 'BaseURL:', config.baseURL);
     }
     return config;
   },

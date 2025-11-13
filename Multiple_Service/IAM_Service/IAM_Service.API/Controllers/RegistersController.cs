@@ -23,16 +23,26 @@ namespace IAM_Service.API.Controllers
         [HttpPost("registers")]
         public async Task<IActionResult> Register([FromBody] RegistersAccountCommand command)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            await _mediator.Send(command);
-            return StatusCode(201, new
-              {
-                 message = "Registration successful. Please log in to continue."
-              });
+                await _mediator.Send(command);
+                return StatusCode(201, new
+                {
+                    message = "Registration successful. Please log in to continue."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log error for debugging
+                Console.WriteLine($"Registration error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Re-throw to let global exception handler handle it
+            }
         }
     }
 }
