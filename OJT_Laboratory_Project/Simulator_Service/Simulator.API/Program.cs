@@ -8,14 +8,19 @@ using Simulator.Application.SimulateRawData.Command;
 using Simulator.Infastructure.Data;
 using Simulator.Infastructure.RabbitMQ;
 using Simulator.Infastructure.Repository;
+using MediatR;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Kestrel for Production - use PORT from environment variable (Render default)
+// Disable HTTPS in production - Render handles HTTPS at the load balancer level
 if (builder.Environment.IsProduction())
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
+        // Configure only HTTP endpoint using PORT from environment variable
+        // This overrides any HTTPS configuration from appsettings.json
         var port = Environment.GetEnvironmentVariable("PORT");
         var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
         options.ListenAnyIP(portNumber, listenOptions =>
@@ -23,13 +28,76 @@ if (builder.Environment.IsProduction())
             listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
         });
     });
+    
+    // Disable HTTPS redirection in production
+    builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
+    {
+        options.RedirectStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status307TemporaryRedirect;
+        options.HttpsPort = null; // Disable HTTPS redirection
+    });
 }
 
-builder.Services.AddScoped<RawDataQueryGrpcService>();
-builder.Services.AddScoped<IRabbitMQPublisher,RabbitMQPublisher>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<SimulateRawDataCommandHandler>());
+// Configure CORS
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "https://front-end-fnfs.onrender.com", "http://localhost:5173", "http://localhost:3000" };
 
-// --- 3. Repository and DB Context ---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Simulator Service API",
+        Version = "v1",
+        Description = "API for simulating laboratory test data"
+    });
+});
+
+// Add gRPC services
+builder.Services.AddGrpc(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.MaxReceiveMessageSize = 6 * 1024 * 1024; // 6 MB
+    options.MaxSendMessageSize = 6 * 1024 * 1024;    // 6 MB
+});
+
+// Add MediatR for CQRS pattern
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+    cfg.RegisterServicesFromAssembly(typeof(SimulateRawDataCommandHandler).Assembly);
+});
+
+// Add gRPC Service
+builder.Services.AddScoped<RawDataQueryGrpcService>();
+
+// --- Configure RabbitMQ ---
+builder.Services.Configure<Simulator.Infastructure.RabbitMQ.RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+
+// Factory Connection là Singleton
+builder.Services.AddSingleton<IConnection>(sp =>
+{
+    var settings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Simulator.Infastructure.RabbitMQ.RabbitMQSettings>>().Value;
+    return Simulator.Infastructure.RabbitMQ.RabbitMQConfig.GetConnection(settings);
+});
+
+// Publisher là Singleton
+builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+
+// --- Repository and DB Context ---
 // Đăng ký Interface cho Repository
 builder.Services.AddScoped<IRawTestResultRepository, RawTestResultRepository>();
 
@@ -47,75 +115,51 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
         : config.GetConnectionString("DefaultConnection");
 
     // Lấy schema từ appsettings.json, mặc định là "simulator_service"
-    var schemaName = config["Database:Schema"] ?? "simulator_service";
-    
-    // Set schema vào static property của AppDbContext
-    Simulator.Infastructure.Data.AppDbContext.SchemaName = schemaName;
+    var schema = config.GetValue<string>("Database:Schema") ?? "simulator_service";
 
-    options.UseNpgsql(connectionString);
-});
-
-static string ConvertPostgresUrlToConnectionString(string url)
-{
-    // URL kiểu: postgresql://user:pass@host:port/db hoặc postgresql://user:pass@host/db
-    var uri = new Uri(url);
-    var userInfo = uri.UserInfo.Split(':');
-    var username = userInfo[0];
-    var password = userInfo.Length > 1 ? userInfo[1] : "";
-
-    // Nếu không có port trong URL, dùng port mặc định 5432 cho PostgreSQL
-    var port = uri.Port == -1 ? 5432 : uri.Port;
-
-    return $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={username};Password={password};Ssl Mode=Require;Trust Server Certificate=true";
-}
-
-builder.Services.AddGrpc(options =>
-{
-    options.EnableDetailedErrors = true;
-    options.MaxReceiveMessageSize = 6 * 1024 * 1024; 
-    options.MaxSendMessageSize = 6 * 1024 * 1024;    
-});
-// --- 4. Configure RabbitMQ ---
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
-
-// Factory Connection là Singleton
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    var settings = sp.GetRequiredService<IOptions<RabbitMQSettings>>().Value;
-    return RabbitMQConfig.GetConnection(settings);
-});
-// Publisher là Singleton
-builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
-
-// Configure Kestrel for Development (Production already configured above)
-if (!builder.Environment.IsProduction())
-{
-    builder.WebHost.ConfigureKestrel(options =>
+    options.UseNpgsql(connectionString, npgsqlOptions =>
     {
-        // Setup a HTTP/2 endpoint without TLS.
-        options.ListenLocalhost(7003, o => o.Protocols =
-             Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", schema);
     });
-}
-// --- 5. Add BackgroundService ---
-builder.Services.AddHostedService<RawDataSimulationService>();
-// --- 6. Add Controllers & Swagger  ---
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+});
 
+// Add Hosted Service
+builder.Services.AddHostedService<Simulator.Application.HostedService.RawDataSimulationService>();
 
 var app = builder.Build();
 
- app.UseSwagger();
- app.UseSwaggerUI();
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
+// Middlewares
+app.UseCors("AllowFrontend"); // Must be before UseAuthentication and UseAuthorization
 
-app.UseRouting();
-app.UseAuthorization(); 
-
-// --- 7. Map Endpoints ---
-app.MapGrpcService<RawDataQueryGrpcService>();
+// Map Controllers and gRPC Services
 app.MapControllers();
+app.MapGrpcService<RawDataQueryGrpcService>();
 
 app.Run();
+
+// Helper function to convert PostgreSQL URL to connection string
+static string ConvertPostgresUrlToConnectionString(string postgresUrl)
+{
+    if (string.IsNullOrWhiteSpace(postgresUrl))
+        return string.Empty;
+
+    var uri = new Uri(postgresUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+    var connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={Uri.UnescapeDataString(userInfo[1])}";
+
+    // Add SSL mode for external connections
+    if (uri.Host.Contains(".render.com") || uri.Host.Contains(".railway.app"))
+    {
+        connectionString += ";SSL Mode=Require;Trust Server Certificate=true";
+    }
+
+    return connectionString;
+}

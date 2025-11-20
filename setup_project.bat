@@ -136,13 +136,25 @@ if exist "create_all_migrations.bat" (
     copy /Y "create_all_migrations.bat" "OJT_Laboratory_Project\" >nul 2>&1
     echo   - Copied create_all_migrations.bat
 )
+if exist "create_migrations_dev.bat" (
+    copy /Y "create_migrations_dev.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied create_migrations_dev.bat
+)
+if exist "create_migrations_prod.bat" (
+    copy /Y "create_migrations_prod.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied create_migrations_prod.bat
+)
 if exist "update_all_databases.bat" (
     copy /Y "update_all_databases.bat" "OJT_Laboratory_Project\" >nul 2>&1
     echo   - Copied update_all_databases.bat
 )
-if exist "README_DATABASE_SCRIPTS.md" (
-    copy /Y "README_DATABASE_SCRIPTS.md" "OJT_Laboratory_Project\" >nul 2>&1
-    echo   - Copied README_DATABASE_SCRIPTS.md
+if exist "update_databases_dev.bat" (
+    copy /Y "update_databases_dev.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied update_databases_dev.bat
+)
+if exist "update_databases_prod.bat" (
+    copy /Y "update_databases_prod.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied update_databases_prod.bat
 )
 echo   Database scripts copied successfully!
 echo.
@@ -183,8 +195,8 @@ if /i "%RESET_DB%"=="y" (
     echo.
     
     REM Create new initial migrations (using script from Deploy folder)
-    echo [Step 2/3] Creating new initial migrations...
-    call create_all_migrations.bat "InitialCreate"
+    echo [Step 2/3] Creating new initial migrations (Development)...
+    call create_migrations_dev.bat "InitialCreate"
     if %ERRORLEVEL% neq 0 (
         powershell -Command "Write-Host 'Error: Failed to create migrations!' -ForegroundColor DarkRed"
         goto :skip_reset
@@ -192,8 +204,8 @@ if /i "%RESET_DB%"=="y" (
     echo.
     
     REM Update database (using script from Deploy folder)
-    echo [Step 3/3] Updating database...
-    call update_all_databases.bat
+    echo [Step 3/3] Updating database (Development)...
+    call update_databases_dev.bat
     if %ERRORLEVEL% neq 0 (
         powershell -Command "Write-Host 'Warning: Database update had errors. Please check manually.' -ForegroundColor DarkYellow"
     )
@@ -216,8 +228,8 @@ echo.
 echo Or from OJT_Laboratory_Project folder:
 echo   cd OJT_Laboratory_Project
 echo   clear_all_migrations.bat
-echo   create_all_migrations.bat "InitialCreate"
-echo   update_all_databases.bat
+echo   create_migrations_dev.bat "InitialCreate"
+echo   update_databases_dev.bat
 echo.
 
 :continue_setup

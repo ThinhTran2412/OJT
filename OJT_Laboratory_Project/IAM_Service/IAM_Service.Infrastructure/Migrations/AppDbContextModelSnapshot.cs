@@ -17,6 +17,7 @@ namespace IAM_Service.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("iam_service")
                 .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -51,7 +52,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", "iam_service");
                 });
 
             modelBuilder.Entity("IAM_Service.Domain.Entity.PasswordReset", b =>
@@ -79,7 +80,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResets");
+                    b.ToTable("PasswordResets", "iam_service");
                 });
 
             modelBuilder.Entity("IAM_Service.Domain.Entity.Privilege", b =>
@@ -100,7 +101,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasKey("PrivilegeId");
 
-                    b.ToTable("Privileges");
+                    b.ToTable("Privileges", "iam_service");
 
                     b.HasData(
                         new
@@ -310,7 +311,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", "iam_service");
                 });
 
             modelBuilder.Entity("IAM_Service.Domain.Entity.Role", b =>
@@ -335,7 +336,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", "iam_service");
 
                     b.HasData(
                         new
@@ -387,7 +388,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasIndex("PrivilegeId");
 
-                    b.ToTable("RolePrivileges");
+                    b.ToTable("RolePrivileges", "iam_service");
 
                     b.HasData(
                         new
@@ -810,7 +811,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "iam_service");
                 });
 
             modelBuilder.Entity("IAM_Service.Domain.Entity.UserPrivilege", b =>
@@ -825,7 +826,7 @@ namespace IAM_Service.Infrastructure.Migrations
 
                     b.HasIndex("PrivilegeId");
 
-                    b.ToTable("UserPrivileges");
+                    b.ToTable("UserPrivileges", "iam_service");
                 });
 
             modelBuilder.Entity("IAM_Service.Domain.Entity.PasswordReset", b =>

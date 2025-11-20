@@ -1,473 +1,318 @@
-# 🚀 Hướng Dẫn Deploy OJT_Laboratory_Project lên Render
+# 🚀 OJT Laboratory Project - Deployment Guide
+
+Hướng dẫn đầy đủ để deploy OJT Laboratory Project lên Render.
 
 ## 📋 Mục Lục
 
-1. [Kết Nối Database](#1-kết-nối-database)
-2. [Deploy Backend Services](#2-deploy-backend-services)
-3. [Deploy Frontend React](#3-deploy-frontend-react)
-4. [Kiểm Tra và Test](#4-kiểm-tra-và-test)
+1. [Cấu hình Environment](#1-cấu-hình-environment)
+2. [Database Setup](#2-database-setup)
+3. [Backend Services Deployment](#3-backend-services-deployment)
+4. [Frontend Deployment](#4-frontend-deployment)
+5. [Environment Variables](#5-environment-variables)
+6. [Troubleshooting](#6-troubleshooting)
 
 ---
 
-## 1. Kết Nối Database
+## 1. Cấu hình Environment
 
-### 1.1. Database Information
+### 1.1. Development (Local)
 
-**Database Host:** `dpg-d4fcsm95pdvs73ader70-a`  
-**Port:** `5432`  
-**Database Name:** `laboratory_service`  
-**Username:** `laboratory_service_user`  
-**Password:** `geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2`
+**Ports Configuration:**
 
-**Internal Database URL (Dùng trong cùng Render Project/Region):**
-```
-postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a/laboratory_service
-```
+| Service | HTTP | HTTPS | gRPC |
+|---------|------|-------|------|
+| IAM_Service | 5044 | 7155 | 7001 |
+| Laboratory_Service | 5002 | 7157 | 7002 |
+| Monitoring_Service | 5004 | 7159 | - |
+| Simulator_Service | 5003 | 7158 | 7003 |
 
-**External Database URL (Dùng từ bên ngoài Render):**
-```
-postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a.singapore-postgres.render.com/laboratory_service
-```
+**Configuration Files:**
+- `appsettings.json` - Default configuration
+- `appsettings.Development.json` - Development overrides (localhost)
 
-**⚠️ QUAN TRỌNG:** 
-- Dùng **Internal URL** nếu services và database trong cùng Render Project
-- Dùng **External URL** nếu services ở ngoài Render hoặc khác region
+### 1.2. Production (Render)
 
-### 1.2. Cấu hình Database trên Render
+**Configuration Files:**
+- `appsettings.Production.json` - Production overrides (Render database)
 
-#### Cách 1: Automatic (Khuyến nghị)
-
-**Nếu tất cả services và database trong cùng Render Project:**
-
-1. Vào Database → **"Settings"** → **"Project"**
-2. Add database vào cùng Project với các services
-3. Render sẽ tự động set `DATABASE_URL` environment variable cho tất cả services
-4. Không cần cấu hình thủ công!
-
-#### Cách 2: Manual (Nếu services và database khác Project)
-
-Vào mỗi service → **"Environment"** tab → Add:
-
-- **Key:** `DATABASE_URL`
-- **Value:** Internal Database URL (nếu trong cùng region) hoặc External Database URL
-
-### 1.3. Cấu hình Schema cho từng Service
-
-Mỗi service đã được cấu hình schema trong `appsettings.json`:
-
-- **IAM_Service:** `iam_service`
-- **Laboratory_Service:** `laboratory_service`
-- **Monitoring_Service:** `monitoring_service`
-- **Simulator_Service:** `simulator_service`
-
-**Không cần thêm environment variable cho schema** - đã có trong `appsettings.json`.
-
-### 1.4. Chạy Migrations
-
-Sau khi services deploy xong, cần chạy migrations:
-
-#### Option 1: Tự động trong Build Command (Đã có)
-
-Services đã được cấu hình để tự động chạy migrations trong Build Command.
-
-#### Option 2: Chạy thủ công qua Render Shell
-
-1. Vào service → **"Shell"** tab
-2. Chạy:
-```bash
-cd /opt/render/project/src
-dotnet tool install --global dotnet-ef
-dotnet ef database update --project [Infrastructure]/[Infrastructure].csproj --startup-project [API]/[API].csproj
-```
-
-**Ví dụ cho IAM_Service:**
-```bash
-dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infrastructure.csproj --startup-project IAM_Service.API/IAM_Service.API.csproj
-```
+**Port Configuration:**
+- Services sử dụng `PORT` environment variable từ Render
+- Kestrel được cấu hình tự động trong `Program.cs`
 
 ---
 
-## 2. Deploy Backend Services
+## 2. Database Setup
 
-### 2.1. Repository Information
+### 2.1. Database Information
 
-- **Repository:** `https://github.com/ThinhTran2412/OJT`
-- **Branch:** `master`
-- **Type:** Monorepo (tất cả services trong 1 repo)
+**Render PostgreSQL Database:**
+- **Internal URL:** `postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a/laboratory_service`
+- **External URL:** `postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a.singapore-postgres.render.com/laboratory_service`
 
-### 2.2. Cấu hình cho từng Service
+**Database Schemas:**
+- `iam_service` - IAM_Service
+- `laboratory_service` - Laboratory_Service
+- `monitoring_service` - Monitoring_Service
+- `simulator_service` - Simulator_Service
 
-#### IAM_Service
+### 2.2. Chạy Migrations
 
-**Settings:**
-- **Name:** `iam-service`
-- **Region:** Singapore (Asia Pacific)
-- **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/IAM_Service`
-- **Runtime:** `dotnet`
-- **Build Command:**
-  ```bash
-  dotnet tool install --global dotnet-ef || true && dotnet restore IAM_Service.sln && dotnet build IAM_Service.sln -c Release && dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infrastructure.csproj --startup-project IAM_Service.API/IAM_Service.API.csproj && dotnet publish IAM_Service.API/IAM_Service.API.csproj -c Release -o ./publish
-  ```
-- **Start Command:**
-  ```bash
-  cd publish && dotnet IAM_Service.API.dll
-  ```
-- **Dockerfile Path:** `IAM_Service.API/Dockerfile` (hoặc để trống nếu dùng Build Command)
+**Development (Local Database):**
+```batch
+cd Deploy
+update_databases_dev.bat
+```
+
+**Production (Render Database):**
+```batch
+cd Deploy
+update_databases_prod.bat
+```
+
+> 📖 Xem chi tiết trong [DATABASE_SCRIPTS_GUIDE.md](./DATABASE_SCRIPTS_GUIDE.md)
+
+---
+
+## 3. Backend Services Deployment
+
+### 3.1. Repository Configuration
+
+**Repository:** `https://github.com/ThinhTran2412/OJT`  
+**Branch:** `master`  
+**Type:** Monorepo
+
+### 3.2. IAM_Service
+
+**Service Type:** Web Service  
+**Root Directory:** `OJT_Laboratory_Project/IAM_Service`  
+**Dockerfile Path:** `IAM_Service.API/Dockerfile`  
+**Start Command:** (Không cần)
 
 **Environment Variables:**
-- `DATABASE_URL` - Tự động set nếu database và service trong cùng Project
-- `ASPNETCORE_ENVIRONMENT=Production` - Tự động set bởi Render
+- `DATABASE_URL` - Tự động từ Render database (nếu cùng Project)
+- `PORT` - Tự động từ Render
 
-#### Laboratory_Service
+**Build Command:**
+```bash
+docker build -f IAM_Service.API/Dockerfile -t iam-service .
+```
 
-**Settings:**
-- **Name:** `laboratory-service`
-- **Region:** Singapore (Asia Pacific)
-- **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/Laboratory_Service`
-- **Runtime:** `dotnet`
-- **Build Command:**
-  ```bash
-  dotnet tool install --global dotnet-ef || true && dotnet restore Laboratory_Service.sln && dotnet build Laboratory_Service.sln -c Release && dotnet ef database update --project Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj --startup-project Laboratory_Service.API/Laboratory_Service.API.csproj && dotnet publish Laboratory_Service.API/Laboratory_Service.API.csproj -c Release -o ./publish
-  ```
-- **Start Command:**
-  ```bash
-  cd publish && dotnet Laboratory_Service.API.dll
-  ```
-- **Dockerfile Path:** `Laboratory_Service.API/Dockerfile`
-
-#### Monitoring_Service
-
-**Settings:**
-- **Name:** `monitoring-service`
-- **Region:** Singapore (Asia Pacific)
-- **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/Monitoring_Service`
-- **Runtime:** `dotnet`
-- **Build Command:**
-  ```bash
-  dotnet tool install --global dotnet-ef || true && dotnet restore Monitoring_Service.slnx && dotnet build Monitoring_Service.slnx -c Release && dotnet ef database update --project Monitoring_Service.Infastructure/Monitoring_Service.Infastructure.csproj --startup-project Monitoring_Service.API/Monitoring_Service.API.csproj && dotnet publish Monitoring_Service.API/Monitoring_Service.API.csproj -c Release -o ./publish
-  ```
-- **Start Command:**
-  ```bash
-  cd publish && dotnet Monitoring_Service.API.dll
-  ```
-- **Dockerfile Path:** `Monitoring_Service.API/Dockerfile`
-
-#### Simulator_Service
-
-**Settings:**
-- **Name:** `simulator-service`
-- **Region:** Singapore (Asia Pacific)
-- **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/Simulator_Service`
-- **Runtime:** `dotnet`
-- **Build Command:**
-  ```bash
-  dotnet tool install --global dotnet-ef || true && dotnet restore Simulator_Service.sln && dotnet build Simulator_Service.sln -c Release && dotnet ef database update --project Simulator.Infastructure/Simulator.Infastructure.csproj --startup-project Simulator.API/Simulator.API.csproj && dotnet publish Simulator.API/Simulator.API.csproj -c Release -o ./publish
-  ```
-- **Start Command:**
-  ```bash
-  cd publish && dotnet Simulator.API.dll
-  ```
-- **Dockerfile Path:** `Simulator.API/Dockerfile`
-
-### 2.3. Lưu ý Quan Trọng
-
-1. **Root Directory:** Phải set đúng vì đây là monorepo
-2. **Dockerfile Path:** Đường dẫn tương đối từ Root Directory
-3. **DATABASE_URL:** Render tự động set nếu database và service trong cùng Project
-4. **HTTPS:** Đã được tắt trong Production - Render handle HTTPS ở load balancer
+**Deploy URL:** `https://iam-service-fz3h.onrender.com`
 
 ---
 
-## 3. Deploy Frontend React
+### 3.3. Laboratory_Service
 
-### 3.1. Tạo Static Site trên Render
+**Service Type:** Web Service  
+**Root Directory:** `OJT_Laboratory_Project/Laboratory_Service`  
+**Dockerfile Path:** `Laboratory_Service.API/Dockerfile`  
+**Start Command:** (Không cần)
 
-1. Vào Render Dashboard → Click **"New +"** → Chọn **"Static Site"** ⭐ **QUAN TRỌNG!**
-   - **KHÔNG** chọn "Web Service"
-   - Phải chọn **"Static Site"**
+**Environment Variables:**
+- `DATABASE_URL` - Tự động từ Render database
+- `PORT` - Tự động từ Render
 
-2. Connect repository: `https://github.com/ThinhTran2412/OJT`
+---
 
-3. Cấu hình:
+### 3.4. Monitoring_Service & Simulator_Service
 
-**Settings:**
-- **Name:** `ojt-frontend` hoặc `laboratory-frontend`
-- **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/Front_End` ⭐ **QUAN TRỌNG!**
-- **Build Command:**
-  ```bash
-  npm install && npm run build
-  ```
-- **Publish Directory:** `dist` ⭐ **QUAN TRỌNG!**
-- **Start Command:** ⚠️ **KHÔNG SET - ĐỂ TRỐNG!** (Static Site không cần start command)
+**Configuration tương tự như các services trên.**
 
-**⚠️ Lưu ý quan trọng:**
-- **KHÔNG** tạo Web Service, phải tạo **Static Site**
-- **KHÔNG** set Start Command (để trống hoàn toàn)
-- Static Site chỉ cần Build Command và Publish Directory
-- Render sẽ tự động serve files trong Publish Directory sau khi build
-- Nếu thấy lỗi "Missing script: start", có nghĩa là đang cấu hình sai (chọn Web Service thay vì Static Site)
+**Root Directories:**
+- Monitoring_Service: `OJT_Laboratory_Project/Monitoring_Service`
+- Simulator_Service: `OJT_Laboratory_Project/Simulator_Service`
 
-**🔧 Fix "Not Found" Error (React Router):**
+---
 
-File `public/_redirects` đã được tạo để redirect tất cả routes về `index.html`:
+## 4. Frontend Deployment
+
+### 4.1. Service Configuration
+
+**Service Type:** Static Site  
+**Root Directory:** `OJT_Laboratory_Project/Front_End`  
+**Build Command:** `npm install; npm run build`  
+**Publish Directory:** `dist`  
+**Start Command:** (Không cần - Static Site)
+
+### 4.2. Environment Variables
+
+**Trong Render Dashboard → Environment:**
+- `VITE_API_BASE_URL` = `https://iam-service-fz3h.onrender.com`
+- `VITE_AUTH_API_URL` = `https://iam-service-fz3h.onrender.com`
+- `VITE_PATIENT_API_URL` = `https://laboratory-service-url.onrender.com`
+
+### 4.3. Routing Configuration
+
+**File:** `OJT_Laboratory_Project/Front_End/public/_redirects`
+
+**Content:**
 ```
 /*    /index.html   200
 ```
 
-**⚠️ QUAN TRỌNG:** Nếu vẫn gặp lỗi "Not Found" sau khi có file `_redirects`, cần cấu hình **Redirects/Rewrites** trong Render Dashboard:
+File này tự động được Render nhận diện để handle client-side routing (React Router).
 
-### Cách 1: File `_redirects` (Tự động - đã có)
+**Manual Configuration (nếu cần):**
+1. Vào Render Dashboard → Frontend Service → Settings
+2. Tìm "Redirects/Rewrites"
+3. Add: `/*` → `/index.html` (Status: 200)
 
-File `public/_redirects` sẽ tự động được Vite copy vào `dist/` khi build. Render sẽ tự động nhận file này.
-
-**Kiểm tra:**
-1. File `_redirects` có trong `public/` folder ✅
-2. Sau khi build, file có trong `dist/` folder
-3. File đã được push lên Git
-
-### Cách 2: Cấu hình trong Render Dashboard (Nếu Cách 1 không hoạt động)
-
-Nếu file `_redirects` không hoạt động, cấu hình thủ công trong Render:
-
-1. **Vào Render Dashboard:**
-   - Đăng nhập Render
-   - Chọn Static Site (Frontend service)
-
-2. **Settings → Redirects/Rewrites:**
-   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
-   - **Source:** `/*`
-   - **Destination:** `/index.html`
-   - **Action:** `Rewrite` (hoặc `Redirect` với status code `200`)
-
-3. **Save và Redeploy:**
-   - Click **"Save Changes"**
-   - Render sẽ tự động rebuild và redeploy
-
-### Kiểm tra sau khi fix:
-
-1. **Test routes:**
-   - `https://front-end-fnfs.onrender.com/` → Home ✅
-   - `https://front-end-fnfs.onrender.com/login` → Login ✅
-   - `https://front-end-fnfs.onrender.com/dashboard` → Dashboard ✅
-
-2. **Test refresh:**
-   - Vào bất kỳ route nào (ví dụ: `/login`)
-   - Refresh trang (F5)
-   - Không được báo "Not Found" ✅
-
-3. **Test direct access:**
-   - Mở tab mới
-   - Gõ trực tiếp URL: `https://front-end-fnfs.onrender.com/login`
-   - Trang load đúng ✅
-
-**Environment Variables:** ⭐ **QUAN TRỌNG!**
-
-Vì frontend dùng axios để gọi API, cần set các environment variables:
-
-- **`VITE_API_BASE_URL`** - URL của IAM_Service API (chính)
-  - **Value:** `https://iam-service-fz3h.onrender.com`
-  - Dùng cho: Auth, User, Role, EventLog, PatientInfo
-  
-- **`VITE_AUTH_API_URL`** - URL của IAM_Service (nếu cần override)
-  - **Value:** `https://iam-service-fz3h.onrender.com`
-  
-- **`VITE_PATIENT_API_URL`** - URL của Laboratory_Service
-  - **Value:** `https://laboratory-service.onrender.com` (cập nhật khi deploy)
-  - Dùng cho: Patient, TestOrder, TestResult, AI Review, MedicalRecord
-
-**Cấu hình trên Render Static Site:**
-1. Vào Frontend Static Site → **"Environment"** tab
-2. Add các environment variables ở trên
-3. Save và Redeploy
-
-**Lưu ý:**
-- Proxy trong `vite.config.js` chỉ hoạt động khi chạy `npm run dev` (development)
-- Khi deploy production, axios sẽ gọi trực tiếp đến backend URL từ environment variables
-- Không cần proxy trên production
-
-### 3.2. Cấu hình Environment Variables
-
-Tạo file `.env.production` trong Front_End (nếu cần) hoặc set trong Render:
-
-**Ví dụ:**
-```
-VITE_API_BASE_URL=https://iam-service.onrender.com
-VITE_LABORATORY_API_URL=https://laboratory-service.onrender.com
-```
-
-**Lưu ý:** Vite chỉ expose các biến bắt đầu bằng `VITE_` trong frontend.
-
-### 3.3. Kiểm tra API Configuration
-
-File `src/services/api.js` đã được cấu hình để dùng environment variables:
-
-```javascript
-const api = axios.create({
-  baseURL: import.meta.env.PROD
-    ? import.meta.env.VITE_API_BASE_URL  // Production: dùng env var
-    : "/api",  // Development: dùng proxy từ vite.config.js
-  // ...
-});
-```
-
-**Cách hoạt động:**
-- **Development (`npm run dev`):** Dùng proxy từ `vite.config.js` → `/api` → proxy đến localhost
-- **Production (deploy):** Dùng trực tiếp `VITE_API_BASE_URL` → gọi đến backend trên Render
-
-**⚠️ Quan trọng:**
-- Environment variables phải bắt đầu bằng `VITE_` để Vite expose cho frontend
-- Sau khi set env vars trên Render, cần rebuild để áp dụng
-
-### 3.4. Build và Deploy
-
-1. Render sẽ tự động:
-   - Run `npm install`
-   - Run `npm run build`
-   - Deploy files trong `dist` folder
-2. Kiểm tra build logs để đảm bảo build thành công
-3. Kiểm tra URL của static site
-
-**Lưu ý về Chunk Size Warning:**
-- Warning về chunk size lớn (>500KB) là bình thường
-- Không phải lỗi - site vẫn hoạt động tốt
-- Đã được optimize với manual chunks trong `vite.config.js`
-- Nếu muốn optimize thêm, có thể dùng code splitting với React.lazy
-
-**📝 Giải thích về React Static Site:**
-
-React app **VẪN LÀ Static Site** sau khi build:
-1. **JSX được compile:** Khi chạy `npm run build`, Vite compile JSX thành JavaScript
-2. **Output là static files:** Tạo ra HTML, CSS, JS trong folder `dist/`
-3. **Axios chạy client-side:** Axios là JavaScript library chạy trong browser, gọi API đến backend
-4. **Không cần server runtime:** Static Site chỉ serve files, không cần Node.js server
-
-**Development vs Production:**
-- **Dev (`npm run dev`):** Proxy trong `vite.config.js` hoạt động để redirect `/api` → localhost
-- **Production (deploy):** Axios gọi trực tiếp đến backend URL từ `VITE_API_BASE_URL` environment variable
-
-### 3.5. Custom Domain (Tùy chọn)
-
-1. Vào Static Site → **"Settings"** → **"Custom Domain"**
-2. Thêm custom domain nếu cần
-3. Follow DNS instructions
+**Deploy URL:** `https://front-end-fnfs.onrender.com`
 
 ---
 
-## 4. Kiểm Tra và Test
+## 5. Environment Variables
 
-### 4.1. Kiểm tra Backend Services
+### 5.1. Backend Services
 
-1. **Health Check:**
-   - IAM_Service: `https://iam-service.onrender.com/swagger`
-   - Laboratory_Service: `https://laboratory-service.onrender.com/swagger`
-   - Monitoring_Service: `https://monitoring-service.onrender.com/swagger`
-   - Simulator_Service: `https://simulator-service.onrender.com/swagger`
+#### Automatic (Khuyến nghị)
+- Nếu database và services trong cùng Render Project:
+  - Render tự động set `DATABASE_URL`
+  - Không cần cấu hình thủ công
 
-2. **Test API:**
-   - Dùng Swagger UI để test endpoints
-   - Hoặc dùng Postman/Thunder Client
+#### Manual (Nếu cần)
+**Key:** `DATABASE_URL`  
+**Value:** Internal Database URL (nếu cùng region) hoặc External Database URL
 
-### 4.2. Kiểm tra Database Connection
+### 5.2. Frontend
 
-1. Vào service → **"Logs"** tab
-2. Kiểm tra logs để xem:
-   - Database connection successful
-   - Migrations đã chạy
-   - Không có lỗi
-
-### 4.3. Kiểm tra Frontend
-
-1. Truy cập URL của static site
-2. Test các chức năng:
-   - Login/Register
-   - API calls
-   - Navigation
-
-### 4.4. Test Integration
-
-1. Test frontend gọi API từ backend
-2. Test authentication flow
-3. Test các chức năng chính
+| Key | Value | Description |
+|-----|-------|-------------|
+| `VITE_API_BASE_URL` | `https://iam-service-fz3h.onrender.com` | Base URL cho API calls |
+| `VITE_AUTH_API_URL` | `https://iam-service-fz3h.onrender.com` | Auth service URL |
+| `VITE_PATIENT_API_URL` | `https://laboratory-service-url.onrender.com` | Patient/Lab service URL |
 
 ---
 
-## 📝 Quick Reference
+## 6. Troubleshooting
 
-### Database Connection String
+### 6.1. Backend Issues
 
-**Internal (Cho services trong cùng Render Project):**
-```
-postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a/laboratory_service
-```
+#### HTTPS Configuration Error
+**Error:** `Unable to configure HTTPS endpoint`
 
-**External (Cho kết nối từ bên ngoài):**
-```
-postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a.singapore-postgres.render.com/laboratory_service
-```
+**Solution:**
+- Đảm bảo `appsettings.Production.json` chỉ cấu hình HTTP endpoints
+- Kestrel được cấu hình trong `Program.cs` để sử dụng `PORT` env var
 
-### Service URLs (Sau khi deploy)
+#### Database Connection Error
+**Error:** `PostgresException: relation "schema.table" does not exist`
 
-- IAM_Service: `https://iam-service.onrender.com`
-- Laboratory_Service: `https://laboratory-service.onrender.com`
-- Monitoring_Service: `https://monitoring-service.onrender.com`
-- Simulator_Service: `https://simulator-service.onrender.com`
-- Frontend: `https://ojt-frontend.onrender.com`
+**Solution:**
+- Chạy migrations: `update_databases_prod.bat`
+- Kiểm tra connection string trong `appsettings.Production.json`
+- Kiểm tra database đang hoạt động trên Render
 
-### Environment Variables cần thiết
+#### CORS Error
+**Error:** `Access-Control-Allow-Origin header is missing`
 
-**Backend Services:**
-- `DATABASE_URL` - Tự động set nếu trong cùng Project
-- `ASPNETCORE_ENVIRONMENT=Production` - Tự động set
+**Solution:**
+- Đảm bảo frontend URL được thêm vào `Cors:AllowedOrigins` trong `appsettings.Production.json`
+- Kiểm tra CORS middleware được add trong `Program.cs`
 
-**Frontend:**
-- `VITE_API_BASE_URL` - URL của backend API
-- `VITE_LABORATORY_API_URL` - URL của Laboratory Service (nếu cần)
+### 6.2. Frontend Issues
 
----
+#### "Not Found" khi truy cập routes
+**Solution:**
+- Đảm bảo file `public/_redirects` tồn tại với content: `/*    /index.html   200`
+- Hoặc cấu hình redirects/rewrites trong Render Dashboard
 
-## 🔧 Troubleshooting
+#### API calls trả về 404
+**Solution:**
+- Kiểm tra `VITE_API_BASE_URL` environment variable
+- Đảm bảo `/api` prefix được tự động thêm vào routes (đã có trong `api.js` interceptor)
+- Kiểm tra backend service đang chạy
 
-### Database Connection Failed
+#### Build Errors
+**Error:** `Missing script: "start"`
 
-**Giải pháp:**
-- Kiểm tra `DATABASE_URL` đã được set chưa
-- Kiểm tra database và service trong cùng region
-- Kiểm tra database đã ready chưa
-- Kiểm tra Internal URL vs External URL
-
-### Service không start
-
-**Giải pháp:**
-- Kiểm tra PORT environment variable
-- Kiểm tra build logs để xem lỗi
-- Kiểm tra HTTPS đã được tắt chưa
-
-### Frontend build failed
-
-**Giải pháp:**
-- Kiểm tra Node.js version
-- Kiểm tra dependencies
-- Kiểm tra build command
-- Kiểm tra Publish Directory
-
-### API calls failed from frontend
-
-**Giải pháp:**
-- Kiểm tra CORS configuration
-- Kiểm tra API URL trong environment variables
-- Kiểm tra backend services đã running chưa
+**Solution:**
+- Đảm bảo service type là **Static Site** (không phải Web Service)
+- **Start Command** phải để trống
 
 ---
 
-## 📞 Useful Links
+## 7. Cấu hình Microservices
 
-- [Render Documentation](https://render.com/docs)
-- [PostgreSQL on Render](https://render.com/docs/databases)
-- [Static Sites on Render](https://render.com/docs/static-sites)
-- [Environment Variables](https://render.com/docs/environment-variables)
+### 7.1. IAM_Service
+
+**GrpcSettings:**
+- Development: `http://localhost:7002`
+- Production: `http://laboratory-service-onrender:7002`
+
+**IAMService Config:**
+- Development: `https://localhost:7155`
+- Production: `https://iam-service-fz3h.onrender.com`
+
+### 7.2. Laboratory_Service
+
+**IAMService Config:**
+- Development: `https://localhost:7155`
+- Production: `https://iam-service-fz3h.onrender.com`
+
+---
+
+## 8. Quick Reference
+
+### Development Workflow
+
+1. **Setup project:**
+   ```batch
+   cd Deploy
+   setup_project.bat
+   ```
+
+2. **Create migrations:**
+   ```batch
+   create_all_migrations.bat "MigrationName"
+   ```
+
+3. **Update database:**
+   ```batch
+   update_databases_dev.bat
+   ```
+
+4. **Run services locally:**
+   - IAM_Service: `https://localhost:7155`
+   - Laboratory_Service: `https://localhost:7157`
+   - Frontend: `http://localhost:5173`
+
+### Production Workflow
+
+1. **Commit and push changes:**
+   ```batch
+   git add .
+   git commit -m "Description"
+   git push origin master
+   ```
+
+2. **Render tự động deploy** (nếu đã cấu hình Auto-Deploy)
+
+3. **Run migrations (nếu cần):**
+   ```batch
+   update_databases_prod.bat
+   ```
+
+---
+
+## 9. Useful Links
+
+- **Frontend:** https://front-end-fnfs.onrender.com
+- **IAM Service:** https://iam-service-fz3h.onrender.com
+- **Database Scripts Guide:** [DATABASE_SCRIPTS_GUIDE.md](./DATABASE_SCRIPTS_GUIDE.md)
+- **Project Setup:** [README.md](./README.md)
+
+---
+
+## 📌 Notes
+
+- Tất cả services dùng **chung 1 database** với **schemas riêng**
+- Development và Production configurations được tách biệt rõ ràng
+- Luôn test trên Development trước khi deploy Production
+- Render tự động handle HTTPS termination - services chỉ cần HTTP
+- Frontend sử dụng `/api` prefix tự động cho tất cả API calls
+
+---
+
+**Last Updated:** 2025-01-20
 

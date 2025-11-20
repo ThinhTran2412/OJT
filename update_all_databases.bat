@@ -23,9 +23,13 @@ if not exist "IAM_Service" (
 
 powershell -Command "Write-Host ''"
 powershell -Command "Write-Host '==============================================================' -ForegroundColor Cyan"
-powershell -Command "Write-Host '  Updating Database Migrations for ALL Services' -ForegroundColor Cyan"
+powershell -Command "Write-Host '  Updating Database Migrations (DEFAULT - Development)' -ForegroundColor Cyan"
+powershell -Command "Write-Host '  Target: Local Database' -ForegroundColor Cyan"
 powershell -Command "Write-Host '  OJT_Laboratory_Project' -ForegroundColor Cyan"
 powershell -Command "Write-Host '==============================================================' -ForegroundColor Cyan"
+powershell -Command "Write-Host ''"
+powershell -Command "Write-Host 'Note: This uses Development config by default.' -ForegroundColor Yellow"
+powershell -Command "Write-Host 'For Production, use: update_databases_prod.bat' -ForegroundColor Yellow"
 powershell -Command "Write-Host ''"
 
 REM Check if dotnet-ef tool is installed
@@ -55,12 +59,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\IAM_Service"
 call dotnet restore >nul 2>&1
-call dotnet build IAM_Service.sln --configuration Release --no-restore >nul 2>&1
+call dotnet build IAM_Service.sln --configuration Development --no-restore >nul 2>&1
 
-echo Applying migrations...
+echo Applying migrations to DEVELOPMENT database...
 dotnet ef database update ^
   --project IAM_Service.Infrastructure/IAM_Service.Infrastructure.csproj ^
-  --startup-project IAM_Service.API/IAM_Service.API.csproj
+  --startup-project IAM_Service.API/IAM_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ IAM_Service migration completed!' -ForegroundColor DarkGreen"
@@ -81,12 +86,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\Laboratory_Service"
 call dotnet restore >nul 2>&1
-call dotnet build Laboratory_Service.sln --configuration Release --no-restore >nul 2>&1
+call dotnet build Laboratory_Service.sln --configuration Development --no-restore >nul 2>&1
 
-echo Applying migrations...
+echo Applying migrations to DEVELOPMENT database...
 dotnet ef database update ^
   --project Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj ^
-  --startup-project Laboratory_Service.API/Laboratory_Service.API.csproj
+  --startup-project Laboratory_Service.API/Laboratory_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Laboratory_Service migration completed!' -ForegroundColor DarkGreen"
@@ -107,12 +113,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\Monitoring_Service"
 call dotnet restore Monitoring_Service.API/Monitoring_Service.API.csproj >nul 2>&1
-call dotnet build Monitoring_Service.API/Monitoring_Service.API.csproj --configuration Release --no-restore >nul 2>&1
+call dotnet build Monitoring_Service.API/Monitoring_Service.API.csproj --configuration Development --no-restore >nul 2>&1
 
-echo Applying migrations...
+echo Applying migrations to DEVELOPMENT database...
 dotnet ef database update ^
   --project Monitoring_Service.Infastructure/Monitoring_Service.Infastructure.csproj ^
-  --startup-project Monitoring_Service.API/Monitoring_Service.API.csproj
+  --startup-project Monitoring_Service.API/Monitoring_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Monitoring_Service migration completed!' -ForegroundColor DarkGreen"
@@ -133,12 +140,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\Simulator_Service"
 call dotnet restore >nul 2>&1
-call dotnet build Simulator_Service.sln --configuration Release --no-restore >nul 2>&1
+call dotnet build Simulator_Service.sln --configuration Development --no-restore >nul 2>&1
 
-echo Applying migrations...
+echo Applying migrations to DEVELOPMENT database...
 dotnet ef database update ^
   --project Simulator.Infastructure/Simulator.Infastructure.csproj ^
-  --startup-project Simulator.API/Simulator.API.csproj
+  --startup-project Simulator.API/Simulator.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Simulator_Service migration completed!' -ForegroundColor DarkGreen"

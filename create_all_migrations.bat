@@ -33,10 +33,14 @@ if not exist "IAM_Service" (
 
 powershell -Command "Write-Host ''"
 powershell -Command "Write-Host '==============================================================' -ForegroundColor Cyan"
-powershell -Command "Write-Host '  Creating Migrations for ALL Services' -ForegroundColor Cyan"
+powershell -Command "Write-Host '  Creating Migrations (DEFAULT - Development)' -ForegroundColor Cyan"
 powershell -Command "Write-Host '  Migration Name: %MIGRATION_NAME%' -ForegroundColor Cyan"
+powershell -Command "Write-Host '  Target: Local Database (localhost:5432)' -ForegroundColor Cyan"
 powershell -Command "Write-Host '  OJT_Laboratory_Project' -ForegroundColor Cyan"
 powershell -Command "Write-Host '==============================================================' -ForegroundColor Cyan"
+powershell -Command "Write-Host ''"
+powershell -Command "Write-Host 'Note: This uses Development config by default.' -ForegroundColor Yellow"
+powershell -Command "Write-Host 'For Production, use: create_migrations_prod.bat' -ForegroundColor Yellow"
 powershell -Command "Write-Host ''"
 
 REM Check if dotnet-ef tool is installed
@@ -66,12 +70,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\IAM_Service"
 call dotnet restore >nul 2>&1
-call dotnet build IAM_Service.sln --configuration Release --no-restore >nul 2>&1
+call dotnet build IAM_Service.sln --configuration Development --no-restore >nul 2>&1
 
-echo Creating migration...
+echo Creating migration with DEVELOPMENT configuration...
 dotnet ef migrations add %MIGRATION_NAME% ^
   --project IAM_Service.Infrastructure/IAM_Service.Infrastructure.csproj ^
-  --startup-project IAM_Service.API/IAM_Service.API.csproj
+  --startup-project IAM_Service.API/IAM_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ IAM_Service migration created!' -ForegroundColor DarkGreen"
@@ -92,12 +97,13 @@ powershell -Command "Write-Host '-----------------------------------------------
 
 cd /d "%~dp0OJT_Laboratory_Project\Laboratory_Service"
 call dotnet restore >nul 2>&1
-call dotnet build Laboratory_Service.sln --configuration Release --no-restore >nul 2>&1
+call dotnet build Laboratory_Service.sln --configuration Development --no-restore >nul 2>&1
 
-echo Creating migration...
+echo Creating migration with DEVELOPMENT configuration...
 dotnet ef migrations add %MIGRATION_NAME% ^
   --project Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj ^
-  --startup-project Laboratory_Service.API/Laboratory_Service.API.csproj
+  --startup-project Laboratory_Service.API/Laboratory_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Laboratory_Service migration created!' -ForegroundColor DarkGreen"
@@ -123,7 +129,8 @@ call dotnet build Monitoring_Service.API/Monitoring_Service.API.csproj --configu
 echo Creating migration...
 dotnet ef migrations add %MIGRATION_NAME% ^
   --project Monitoring_Service.Infastructure/Monitoring_Service.Infastructure.csproj ^
-  --startup-project Monitoring_Service.API/Monitoring_Service.API.csproj
+  --startup-project Monitoring_Service.API/Monitoring_Service.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Monitoring_Service migration created!' -ForegroundColor DarkGreen"
@@ -149,7 +156,8 @@ call dotnet build Simulator_Service.sln --configuration Release --no-restore >nu
 echo Creating migration...
 dotnet ef migrations add %MIGRATION_NAME% ^
   --project Simulator.Infastructure/Simulator.Infastructure.csproj ^
-  --startup-project Simulator.API/Simulator.API.csproj
+  --startup-project Simulator.API/Simulator.API.csproj ^
+  --configuration Development
 
 if %ERRORLEVEL% equ 0 (
     powershell -Command "Write-Host '✓ Simulator_Service migration created!' -ForegroundColor DarkGreen"

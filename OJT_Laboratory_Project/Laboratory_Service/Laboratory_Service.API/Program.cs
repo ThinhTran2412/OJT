@@ -32,20 +32,37 @@ namespace Laboratory_Service.API
                 });
             });
 
+            // Configure CORS
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? new[] { "https://front-end-fnfs.onrender.com", "http://localhost:5173", "http://localhost:3000" };
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
             // Add gRPC services
             builder.Services.AddGrpc(options =>
             {
                 options.EnableDetailedErrors = true;
-                options.MaxReceiveMessageSize = 6291456;
-                options.MaxSendMessageSize = 6291456;
+                options.MaxReceiveMessageSize = 6 * 1024 * 1024; // 6 MB
+                options.MaxSendMessageSize = 6 * 1024 * 1024;    // 6 MB
             });
 
-            // Configure Kestrel
+            // Configure Kestrel for Production - use PORT from environment variable (Render default)
+            // Disable HTTPS in production - Render handles HTTPS at the load balancer level
             if (builder.Environment.IsProduction())
             {
-                // Production: Use PORT from environment variable (Render default)
                 builder.WebHost.ConfigureKestrel(options =>
                 {
+                    // Configure only HTTP endpoint using PORT from environment variable
+                    // This overrides any HTTPS configuration from appsettings.json
                     var port = Environment.GetEnvironmentVariable("PORT");
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
@@ -53,15 +70,12 @@ namespace Laboratory_Service.API
                         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
                     });
                 });
-            }
-            else
-            {
-                // Development: Use localhost with specific port
-                builder.WebHost.ConfigureKestrel(options =>
+                
+                // Disable HTTPS redirection in production
+                builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
                 {
-                    // Setup a HTTP/2 endpoint without TLS.
-                    options.ListenLocalhost(7156, o => o.Protocols =
-                        Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
+                    options.RedirectStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status307TemporaryRedirect;
+                    options.HttpsPort = null; // Disable HTTPS redirection
                 });
             }
 
@@ -93,18 +107,14 @@ namespace Laboratory_Service.API
                 app.UseSwaggerUI();
             }
 
-            // Temporarily disable HTTPS redirection for gRPC testing
-            // app.UseHttpsRedirection();
-
+            // Middlewares
+            app.UseCors("AllowFrontend"); // Must be before UseAuthentication and UseAuthorization
             app.UseSharePolicies();
-
-            // JWT authentication disabled
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Map Controllers and gRPC Services
             app.MapControllers();
-
-
-            // Map gRPC services
             app.MapGrpcService<Laboratory_Service.API.Services.PatientGrpcService>();
 
             app.Run();

@@ -1,0 +1,2 @@
+obj\Release\net8.0/Patient.cs \
+obj\Release\net8.0/PatientGrpc.cs: ../../Laboratory_Service/Laboratory_Service.API/Protos/patient.proto

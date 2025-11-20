@@ -1,0 +1,12 @@
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\bin\Debug\net8.0\Laboratory_Service.Domain.deps.json
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\bin\Debug\net8.0\Laboratory_Service.Domain.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\bin\Debug\net8.0\Laboratory_Service.Domain.pdb
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.GeneratedMSBuildEditorConfig.editorconfig
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.AssemblyInfoInputs.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.AssemblyInfo.cs
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.csproj.CoreCompileInputs.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.sourcelink.json
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\refint\Laboratory_Service.Domain.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\Laboratory_Service.Domain.pdb
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Domain\obj\Debug\net8.0\ref\Laboratory_Service.Domain.dll
