@@ -6,6 +6,7 @@ using Laboratory_Service.Infrastructure.Services;
 using Microsoft.OpenApi.Models;
 using MyCompany.Authorization.Setup;
 using SharedLibrary.DependencyInjection;
+using System.Linq;
 
 namespace Laboratory_Service.API
 {
@@ -20,14 +21,18 @@ namespace Laboratory_Service.API
             // Disable HTTPS in production - Render handles HTTPS at the load balancer level
             if (builder.Environment.IsProduction())
             {
-                // Remove HTTPS endpoint from configuration before Kestrel loads it
+                // Remove HTTPS endpoint completely from configuration before Kestrel loads it
                 // This prevents HTTPS endpoint from appsettings.json from being loaded
                 var httpsSection = builder.Configuration.GetSection("Kestrel:Endpoints:Https");
                 if (httpsSection.Exists())
                 {
-                    // Remove HTTPS endpoint configuration keys
-                    builder.Configuration["Kestrel:Endpoints:Https:Url"] = null;
-                    builder.Configuration["Kestrel:Endpoints:Https:Protocols"] = null;
+                    // Remove all child keys from HTTPS section to completely remove it
+                    foreach (var child in httpsSection.GetChildren().ToList())
+                    {
+                        builder.Configuration[$"Kestrel:Endpoints:Https:{child.Key}"] = null;
+                    }
+                    // Also remove the section itself if possible
+                    builder.Configuration["Kestrel:Endpoints:Https"] = null;
                 }
                 
                 // Use UseKestrel instead of ConfigureKestrel to completely replace configuration
