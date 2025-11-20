@@ -1,10 +1,44 @@
 import axios from "axios";
 
+// API Base URLs for production
+const IAM_SERVICE_URL = import.meta.env.VITE_IAM_SERVICE_URL || 'https://iam-service-fz3h.onrender.com';
+const LABORATORY_SERVICE_URL = import.meta.env.VITE_LABORATORY_SERVICE_URL || 'https://laboratory-service.onrender.com';
+
+// Endpoints that should route to IAM Service
+const IAM_ENDPOINTS = ['/Auth', '/User', '/Role', '/EventLog', '/PatientInfo', '/Registers'];
+
+// Endpoints that should route to Laboratory Service
+const LABORATORY_ENDPOINTS = ['/Patient', '/TestOrder', '/TestResult', '/MedicalRecord', '/ai-review'];
+
+// Determine which service to use based on endpoint
+const getServiceUrl = (url) => {
+  if (!import.meta.env.PROD) {
+    // Development: use proxy
+    return "/api";
+  }
+
+  // Production: route to correct service
+  if (!url) return IAM_SERVICE_URL; // Default to IAM Service
+
+  // Check if URL starts with any IAM endpoint
+  const isIAMEndpoint = IAM_ENDPOINTS.some(endpoint => url.startsWith(endpoint));
+  if (isIAMEndpoint) {
+    return IAM_SERVICE_URL;
+  }
+
+  // Check if URL starts with any Laboratory endpoint
+  const isLaboratoryEndpoint = LABORATORY_ENDPOINTS.some(endpoint => url.startsWith(endpoint));
+  if (isLaboratoryEndpoint) {
+    return LABORATORY_SERVICE_URL;
+  }
+
+  // Default to IAM Service for unknown endpoints
+  return IAM_SERVICE_URL;
+};
+
 // Current Axios configuration 
 const api = axios.create({
-  baseURL: import.meta.env.PROD
-    ? import.meta.env.VITE_API_BASE_URL
-    : "/api",
+  baseURL: import.meta.env.PROD ? IAM_SERVICE_URL : "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,15 +48,14 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // Ensure /api prefix in production
+    // In production, route to correct service based on endpoint
     if (import.meta.env.PROD) {
-      const baseURL = api.defaults.baseURL || '';
-      if (baseURL && !baseURL.endsWith('/api')) {
-        // Production: baseURL is full domain (https://iam-service-fz3h.onrender.com)
-        // Add /api prefix to all routes
-        if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
-          config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
-        }
+      const serviceUrl = getServiceUrl(config.url);
+      config.baseURL = serviceUrl;
+      
+      // Ensure /api prefix
+      if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
+        config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
       }
     }
     
@@ -67,8 +100,9 @@ api.interceptors.response.use(
           throw new Error('Missing refresh token');
         }
 
+        // Refresh token should always go to IAM Service
         const refreshClient = axios.create({
-          baseURL: api.defaults.baseURL,
+          baseURL: import.meta.env.PROD ? IAM_SERVICE_URL : "/api",
           headers: { 'Content-Type': 'application/json' },
           timeout: 15000,
           withCredentials: false,
@@ -77,11 +111,8 @@ api.interceptors.response.use(
         // Add /api prefix interceptor for refreshClient too
         refreshClient.interceptors.request.use((config) => {
           if (import.meta.env.PROD) {
-            const baseURL = refreshClient.defaults.baseURL || '';
-            if (baseURL && !baseURL.endsWith('/api')) {
-              if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
-                config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
-              }
+            if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
+              config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
             }
           }
           return config;

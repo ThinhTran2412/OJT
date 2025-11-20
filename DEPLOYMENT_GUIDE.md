@@ -266,10 +266,13 @@ npm install; npm run build
 
 ### 4.2. Environment Variables
 
-**Trong Render Dashboard → Environment:**
-- `VITE_API_BASE_URL` = `https://iam-service-fz3h.onrender.com`
-- `VITE_AUTH_API_URL` = `https://iam-service-fz3h.onrender.com`
-- `VITE_PATIENT_API_URL` = `https://laboratory-service-url.onrender.com`
+**Trong Render Dashboard → Environment (Optional - có default values):**
+- `VITE_IAM_SERVICE_URL` = `https://iam-service-fz3h.onrender.com` (Default)
+- `VITE_LABORATORY_SERVICE_URL` = `https://laboratory-service.onrender.com` (Default)
+
+**Lưu ý:** Frontend tự động route requests đến đúng service dựa trên endpoint:
+- IAM Service: `/api/Auth`, `/api/User`, `/api/Role`, `/api/EventLog`, `/api/PatientInfo`, `/api/Registers`
+- Laboratory Service: `/api/Patient`, `/api/TestOrder`, `/api/TestResult`, `/api/MedicalRecord`, `/api/ai-review`
 
 ### 4.3. Routing Configuration
 
