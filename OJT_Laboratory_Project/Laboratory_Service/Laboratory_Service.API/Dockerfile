@@ -14,7 +14,7 @@ COPY ["Laboratory_Service.API/Laboratory_Service.API.csproj", "Laboratory_Servic
 COPY ["Laboratory_Service.Application/Laboratory_Service.Application.csproj", "Laboratory_Service.Application/"]
 COPY ["Laboratory_Service.Domain/Laboratory_Service.Domain.csproj", "Laboratory_Service.Domain/"]
 COPY ["Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj", "Laboratory_Service.Infrastructure/"]
-COPY ["ShareLibrarySolution/SharedLibrary/SharedLibrary.csproj", "ShareLibrarySolution/SharedLibrary/"]
+COPY ["ShareLibrarySolution/SharedLibrary.csproj", "ShareLibrarySolution/"]
 
 # Restore dependencies (NuGet.config will use local nuget source)
 RUN dotnet restore "./Laboratory_Service.API/Laboratory_Service.API.csproj"
