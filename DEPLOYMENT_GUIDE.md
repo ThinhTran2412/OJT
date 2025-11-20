@@ -202,6 +202,18 @@ dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infra
 - Render sẽ tự động serve files trong Publish Directory sau khi build
 - Nếu thấy lỗi "Missing script: start", có nghĩa là đang cấu hình sai (chọn Web Service thay vì Static Site)
 
+**🔧 Fix "Not Found" Error (React Router):**
+
+File `public/_redirects` đã được tạo để redirect tất cả routes về `index.html`:
+```
+/*    /index.html   200
+```
+
+Điều này cho phép React Router xử lý client-side routing đúng cách. Nếu vẫn gặp lỗi "Not Found":
+1. Đảm bảo file `_redirects` đã được push lên Git
+2. Kiểm tra file có trong `public/` folder
+3. Render sẽ tự động nhận file `_redirects` và apply redirect rules
+
 **Environment Variables:**
 - `VITE_API_BASE_URL` - URL của IAM_Service API
   - Ví dụ: `https://iam-service.onrender.com`
