@@ -213,58 +213,58 @@ dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infra
 
 Xem file `REACT_STATIC_SITE_EXPLAINED.md` để hiểu chi tiết cách React SPA hoạt động.
 
-**🔧 Fix "Not Found" Error (React Router):**
+**🔧 Fix "Not Found" Error (React Router):** ⭐ **QUAN TRỌNG!**
 
-File `public/_redirects` đã được tạo để redirect tất cả routes về `index.html`:
+Nếu truy cập trực tiếp `https://front-end-fnfs.onrender.com/login` báo **"Not Found"**, cần cấu hình **Redirects/Rewrites** trong Render Dashboard.
+
+### ⚠️ File `_redirects` có thể không đủ!
+
+File `public/_redirects` đã có nhưng **Render Static Site có thể không tự động nhận file này**. Cần cấu hình thủ công trong Render Dashboard.
+
+### Cách 1: Cấu Hình Redirects/Rewrites Trong Render Dashboard (KHUYẾN NGHỊ)
+
+1. **Vào Render Dashboard:**
+   - Đăng nhập: https://dashboard.render.com
+   - Chọn Static Site (Frontend service)
+   - Click tab **"Settings"**
+
+2. **Tìm phần "Redirects/Rewrites":**
+   - Scroll xuống phần **"Redirects/Rewrites"** hoặc **"Rewrites"**
+   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
+
+3. **Cấu hình Rewrite Rule:**
+   ```
+   Source (Path): /*
+   Destination: /index.html
+   Action: Rewrite
+   Status: 200
+   ```
+
+4. **Save và Redeploy:**
+   - Click **"Save Changes"**
+   - Render sẽ tự động rebuild và redeploy
+   - Chờ deployment hoàn tất (1-2 phút)
+
+5. **Test lại:**
+   - ✅ `https://front-end-fnfs.onrender.com/login` → Login page
+   - ✅ `https://front-end-fnfs.onrender.com/dashboard` → Dashboard
+   - ✅ Refresh page không báo "Not Found"
+
+### Cách 2: File `_redirects` (Backup - đã có)
+
+File `public/_redirects` đã được tạo:
 ```
 /*    /index.html   200
 ```
 
-**⚠️ QUAN TRỌNG:** Nếu vẫn gặp lỗi "Not Found" sau khi có file `_redirects`, cần cấu hình **Redirects/Rewrites** trong Render Dashboard:
+**Lưu ý:** File này có thể không hoạt động trên Render, cần dùng **Cách 1** (cấu hình trong Dashboard).
 
-### Cách 1: File `_redirects` (Tự động - đã có)
+### Xem chi tiết: `RENDER_FIX_NOT_FOUND.md`
 
-File `public/_redirects` sẽ tự động được Vite copy vào `dist/` khi build. Render sẽ tự động nhận file này.
-
-**Kiểm tra:**
-1. File `_redirects` có trong `public/` folder ✅
-2. Sau khi build, file có trong `dist/` folder
-3. File đã được push lên Git
-
-### Cách 2: Cấu hình trong Render Dashboard (Nếu Cách 1 không hoạt động)
-
-Nếu file `_redirects` không hoạt động, cấu hình thủ công trong Render:
-
-1. **Vào Render Dashboard:**
-   - Đăng nhập Render
-   - Chọn Static Site (Frontend service)
-
-2. **Settings → Redirects/Rewrites:**
-   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
-   - **Source:** `/*`
-   - **Destination:** `/index.html`
-   - **Action:** `Rewrite` (hoặc `Redirect` với status code `200`)
-
-3. **Save và Redeploy:**
-   - Click **"Save Changes"**
-   - Render sẽ tự động rebuild và redeploy
-
-### Kiểm tra sau khi fix:
-
-1. **Test routes:**
-   - `https://front-end-fnfs.onrender.com/` → Home ✅
-   - `https://front-end-fnfs.onrender.com/login` → Login ✅
-   - `https://front-end-fnfs.onrender.com/dashboard` → Dashboard ✅
-
-2. **Test refresh:**
-   - Vào bất kỳ route nào (ví dụ: `/login`)
-   - Refresh trang (F5)
-   - Không được báo "Not Found" ✅
-
-3. **Test direct access:**
-   - Mở tab mới
-   - Gõ trực tiếp URL: `https://front-end-fnfs.onrender.com/login`
-   - Trang load đúng ✅
+Xem file `RENDER_FIX_NOT_FOUND.md` để biết:
+- Screenshot hướng dẫn
+- Troubleshooting chi tiết
+- Các cách khác nếu vẫn không hoạt động
 
 **Environment Variables:** ⭐ **QUAN TRỌNG!**
 
