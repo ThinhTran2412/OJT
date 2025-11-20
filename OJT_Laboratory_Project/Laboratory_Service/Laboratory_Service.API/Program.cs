@@ -20,10 +20,10 @@ namespace Laboratory_Service.API
             // Disable HTTPS in production - Render handles HTTPS at the load balancer level
             if (builder.Environment.IsProduction())
             {
-                builder.WebHost.UseKestrel(options =>
+                builder.WebHost.ConfigureKestrel(options =>
                 {
                     // Configure only HTTP endpoint using PORT from environment variable
-                    // This completely overrides any HTTPS configuration from appsettings.json
+                    // This overrides any HTTPS configuration from appsettings.json
                     var port = Environment.GetEnvironmentVariable("PORT");
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
