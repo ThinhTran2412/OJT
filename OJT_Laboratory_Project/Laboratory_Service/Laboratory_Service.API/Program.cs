@@ -16,8 +16,31 @@ namespace Laboratory_Service.API
             // Create a builder for the web application.
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Configure Kestrel for Production FIRST - before any other services
+            // Disable HTTPS in production - Render handles HTTPS at the load balancer level
+            if (builder.Environment.IsProduction())
+            {
+                builder.WebHost.ConfigureKestrel(options =>
+                {
+                    // Configure only HTTP endpoint using PORT from environment variable
+                    // This overrides any HTTPS configuration from appsettings.json
+                    var port = Environment.GetEnvironmentVariable("PORT");
+                    var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
+                    options.ListenAnyIP(portNumber, listenOptions =>
+                    {
+                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                    });
+                });
+                
+                // Disable HTTPS redirection in production
+                builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
+                {
+                    options.RedirectStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status307TemporaryRedirect;
+                    options.HttpsPort = null; // Disable HTTPS redirection
+                });
+            }
 
+            // Add services to the container.
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -54,30 +77,6 @@ namespace Laboratory_Service.API
                 options.MaxReceiveMessageSize = 6 * 1024 * 1024; // 6 MB
                 options.MaxSendMessageSize = 6 * 1024 * 1024;    // 6 MB
             });
-
-            // Configure Kestrel for Production - use PORT from environment variable (Render default)
-            // Disable HTTPS in production - Render handles HTTPS at the load balancer level
-            if (builder.Environment.IsProduction())
-            {
-                builder.WebHost.ConfigureKestrel(options =>
-                {
-                    // Configure only HTTP endpoint using PORT from environment variable
-                    // This overrides any HTTPS configuration from appsettings.json
-                    var port = Environment.GetEnvironmentVariable("PORT");
-                    var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
-                    options.ListenAnyIP(portNumber, listenOptions =>
-                    {
-                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                    });
-                });
-                
-                // Disable HTTPS redirection in production
-                builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
-                {
-                    options.RedirectStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status307TemporaryRedirect;
-                    options.HttpsPort = null; // Disable HTTPS redirection
-                });
-            }
 
             builder.Services.AddSingleton<ITokenService, IAMTokenService>();
 
