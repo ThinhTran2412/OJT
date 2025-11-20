@@ -39,7 +39,8 @@ namespace Laboratory_Service.API
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
                     {
-                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                        // Use Http1 instead of Http1AndHttp2 to avoid HTTPS configuration issues
+                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
                     });
                 });
                 
