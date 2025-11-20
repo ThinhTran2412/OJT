@@ -8,6 +8,21 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react(), tsconfigPaths()],
+    build: {
+      // Tăng chunk size warning limit (từ 500KB mặc định)
+      chunkSizeWarningLimit: 1500,
+      // Manual chunks để tối ưu bundle size
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Tách vendor libraries thành chunks riêng
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'antd-vendor': ['antd'],
+            'utils-vendor': ['axios', 'zustand', 'uuid', 'lucide-react'],
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         // API chính (Auth, User, Role, etc.) - Port 7155

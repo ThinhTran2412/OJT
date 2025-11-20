@@ -236,6 +236,12 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5044
 2. Kiểm tra build logs để đảm bảo build thành công
 3. Kiểm tra URL của static site
 
+**Lưu ý về Chunk Size Warning:**
+- Warning về chunk size lớn (>500KB) là bình thường
+- Không phải lỗi - site vẫn hoạt động tốt
+- Đã được optimize với manual chunks trong `vite.config.js`
+- Nếu muốn optimize thêm, có thể dùng code splitting với React.lazy
+
 ### 3.5. Custom Domain (Tùy chọn)
 
 1. Vào Static Site → **"Settings"** → **"Custom Domain"**
