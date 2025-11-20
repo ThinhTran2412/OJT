@@ -87,7 +87,7 @@ export default function Register() {
     setErrorType('');
 
     try {
-      const response = await api.post('/Registers/registers', {
+      const response = await api.post('/api/Registers/registers', {
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
