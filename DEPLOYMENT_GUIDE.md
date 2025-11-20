@@ -176,19 +176,31 @@ dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infra
 
 ### 3.1. Tạo Static Site trên Render
 
-1. Vào Render Dashboard → Click **"New +"** → **"Static Site"**
+1. Vào Render Dashboard → Click **"New +"** → Chọn **"Static Site"** ⭐ **QUAN TRỌNG!**
+   - **KHÔNG** chọn "Web Service"
+   - Phải chọn **"Static Site"**
+
 2. Connect repository: `https://github.com/ThinhTran2412/OJT`
+
 3. Cấu hình:
 
 **Settings:**
 - **Name:** `ojt-frontend` hoặc `laboratory-frontend`
 - **Branch:** `master`
-- **Root Directory:** `OJT_Laboratory_Project/Front_End`
+- **Root Directory:** `OJT_Laboratory_Project/Front_End` ⭐ **QUAN TRỌNG!**
 - **Build Command:**
   ```bash
   npm install && npm run build
   ```
-- **Publish Directory:** `dist` (hoặc `build` tùy vào vite config)
+- **Publish Directory:** `dist` ⭐ **QUAN TRỌNG!**
+- **Start Command:** ⚠️ **KHÔNG SET - ĐỂ TRỐNG!** (Static Site không cần start command)
+
+**⚠️ Lưu ý quan trọng:**
+- **KHÔNG** tạo Web Service, phải tạo **Static Site**
+- **KHÔNG** set Start Command (để trống hoàn toàn)
+- Static Site chỉ cần Build Command và Publish Directory
+- Render sẽ tự động serve files trong Publish Directory sau khi build
+- Nếu thấy lỗi "Missing script: start", có nghĩa là đang cấu hình sai (chọn Web Service thay vì Static Site)
 
 **Environment Variables:**
 - `VITE_API_BASE_URL` - URL của IAM_Service API

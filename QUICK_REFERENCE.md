@@ -53,6 +53,12 @@ npm install && npm run build
 
 **Publish Directory:** `dist`
 
+**Start Command:** *(Để trống - không cần cho static site)*
+
+**⚠️ Lưu ý:**
+- Phải tạo **Static Site**, không phải Web Service
+- Không set Start Command
+
 **Environment Variables:**
 - `VITE_API_BASE_URL` - URL của backend API
 
