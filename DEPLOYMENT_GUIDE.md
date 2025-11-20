@@ -11,17 +11,27 @@
 
 ## 1. Kết Nối Database
 
-### 1.1. Database Information (Đã có sẵn)
+### 1.1. Database Information
 
-**Internal Database URL:**
+**Database Host:** `dpg-d4fcsm95pdvs73ader70-a`  
+**Port:** `5432`  
+**Database Name:** `laboratory_service`  
+**Username:** `laboratory_service_user`  
+**Password:** `geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2`
+
+**Internal Database URL (Dùng trong cùng Render Project/Region):**
 ```
 postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a/laboratory_service
 ```
 
-**External Database URL:**
+**External Database URL (Dùng từ bên ngoài Render):**
 ```
 postgresql://laboratory_service_user:geeqHh8B6xA8oQNkNHw0K0AoJKSZhji2@dpg-d4fcsm95pdvs73ader70-a.singapore-postgres.render.com/laboratory_service
 ```
+
+**⚠️ QUAN TRỌNG:** 
+- Dùng **Internal URL** nếu services và database trong cùng Render Project
+- Dùng **External URL** nếu services ở ngoài Render hoặc khác region
 
 ### 1.2. Cấu hình Database trên Render
 
@@ -202,84 +212,78 @@ dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infra
 - Render sẽ tự động serve files trong Publish Directory sau khi build
 - Nếu thấy lỗi "Missing script: start", có nghĩa là đang cấu hình sai (chọn Web Service thay vì Static Site)
 
-**❓ FAQ: "File `index.html` chỉ có `<div id="root"></div>` rỗng, có cần Web Service không?"**
+**🔧 Fix "Not Found" Error (React Router):**
 
-**Trả lời: KHÔNG! Đây là cách React SPA hoạt động bình thường.**
-
-- File `index.html` chỉ là **entry point** - không cần server-side rendering
-- React sẽ **render toàn bộ UI** vào `<div id="root">` bằng JavaScript (chạy trong browser)
-- JavaScript files trong `assets/` chứa toàn bộ code React (đã được compile)
-- **Tất cả logic chạy client-side** → Vẫn là Static Site, không cần Web Service
-
-Xem file `REACT_STATIC_SITE_EXPLAINED.md` để hiểu chi tiết cách React SPA hoạt động.
-
-**🔧 Fix "Not Found" Error (React Router):** ⭐ **QUAN TRỌNG!**
-
-Nếu truy cập trực tiếp `https://front-end-fnfs.onrender.com/login` báo **"Not Found"**, cần cấu hình **Redirects/Rewrites** trong Render Dashboard.
-
-### ⚠️ File `_redirects` có thể không đủ!
-
-File `public/_redirects` đã có nhưng **Render Static Site có thể không tự động nhận file này**. Cần cấu hình thủ công trong Render Dashboard.
-
-### Cách 1: Cấu Hình Redirects/Rewrites Trong Render Dashboard (KHUYẾN NGHỊ)
-
-1. **Vào Render Dashboard:**
-   - Đăng nhập: https://dashboard.render.com
-   - Chọn Static Site (Frontend service)
-   - Click tab **"Settings"**
-
-2. **Tìm phần "Redirects/Rewrites":**
-   - Scroll xuống phần **"Redirects/Rewrites"** hoặc **"Rewrites"**
-   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
-
-3. **Cấu hình Rewrite Rule:**
-   ```
-   Source (Path): /*
-   Destination: /index.html
-   Action: Rewrite
-   Status: 200
-   ```
-
-4. **Save và Redeploy:**
-   - Click **"Save Changes"**
-   - Render sẽ tự động rebuild và redeploy
-   - Chờ deployment hoàn tất (1-2 phút)
-
-5. **Test lại:**
-   - ✅ `https://front-end-fnfs.onrender.com/login` → Login page
-   - ✅ `https://front-end-fnfs.onrender.com/dashboard` → Dashboard
-   - ✅ Refresh page không báo "Not Found"
-
-### Cách 2: File `_redirects` (Backup - đã có)
-
-File `public/_redirects` đã được tạo:
+File `public/_redirects` đã được tạo để redirect tất cả routes về `index.html`:
 ```
 /*    /index.html   200
 ```
 
-**Lưu ý:** File này có thể không hoạt động trên Render, cần dùng **Cách 1** (cấu hình trong Dashboard).
+**⚠️ QUAN TRỌNG:** Nếu vẫn gặp lỗi "Not Found" sau khi có file `_redirects`, cần cấu hình **Redirects/Rewrites** trong Render Dashboard:
 
-### Xem chi tiết: `RENDER_FIX_NOT_FOUND.md`
+### Cách 1: File `_redirects` (Tự động - đã có)
 
-Xem file `RENDER_FIX_NOT_FOUND.md` để biết:
-- Screenshot hướng dẫn
-- Troubleshooting chi tiết
-- Các cách khác nếu vẫn không hoạt động
+File `public/_redirects` sẽ tự động được Vite copy vào `dist/` khi build. Render sẽ tự động nhận file này.
+
+**Kiểm tra:**
+1. File `_redirects` có trong `public/` folder ✅
+2. Sau khi build, file có trong `dist/` folder
+3. File đã được push lên Git
+
+### Cách 2: Cấu hình trong Render Dashboard (Nếu Cách 1 không hoạt động)
+
+Nếu file `_redirects` không hoạt động, cấu hình thủ công trong Render:
+
+1. **Vào Render Dashboard:**
+   - Đăng nhập Render
+   - Chọn Static Site (Frontend service)
+
+2. **Settings → Redirects/Rewrites:**
+   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
+   - **Source:** `/*`
+   - **Destination:** `/index.html`
+   - **Action:** `Rewrite` (hoặc `Redirect` với status code `200`)
+
+3. **Save và Redeploy:**
+   - Click **"Save Changes"**
+   - Render sẽ tự động rebuild và redeploy
+
+### Kiểm tra sau khi fix:
+
+1. **Test routes:**
+   - `https://front-end-fnfs.onrender.com/` → Home ✅
+   - `https://front-end-fnfs.onrender.com/login` → Login ✅
+   - `https://front-end-fnfs.onrender.com/dashboard` → Dashboard ✅
+
+2. **Test refresh:**
+   - Vào bất kỳ route nào (ví dụ: `/login`)
+   - Refresh trang (F5)
+   - Không được báo "Not Found" ✅
+
+3. **Test direct access:**
+   - Mở tab mới
+   - Gõ trực tiếp URL: `https://front-end-fnfs.onrender.com/login`
+   - Trang load đúng ✅
 
 **Environment Variables:** ⭐ **QUAN TRỌNG!**
 
 Vì frontend dùng axios để gọi API, cần set các environment variables:
 
 - **`VITE_API_BASE_URL`** - URL của IAM_Service API (chính)
-  - Ví dụ: `https://iam-service.onrender.com`
+  - **Value:** `https://iam-service-fz3h.onrender.com`
   - Dùng cho: Auth, User, Role, EventLog, PatientInfo
   
 - **`VITE_AUTH_API_URL`** - URL của IAM_Service (nếu cần override)
-  - Ví dụ: `https://iam-service.onrender.com`
+  - **Value:** `https://iam-service-fz3h.onrender.com`
   
 - **`VITE_PATIENT_API_URL`** - URL của Laboratory_Service
-  - Ví dụ: `https://laboratory-service.onrender.com`
+  - **Value:** `https://laboratory-service.onrender.com` (cập nhật khi deploy)
   - Dùng cho: Patient, TestOrder, TestResult, AI Review, MedicalRecord
+
+**Cấu hình trên Render Static Site:**
+1. Vào Frontend Static Site → **"Environment"** tab
+2. Add các environment variables ở trên
+3. Save và Redeploy
 
 **Lưu ý:**
 - Proxy trong `vite.config.js` chỉ hoạt động khi chạy `npm run dev` (development)
