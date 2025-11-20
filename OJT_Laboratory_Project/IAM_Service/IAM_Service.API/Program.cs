@@ -20,16 +20,21 @@ namespace IAM_Service.API
             {
                 builder.WebHost.ConfigureKestrel(options =>
                 {
-                    // Clear all endpoints first
-                    options.Configure().Endpoints.Clear();
-                    
-                    // Add only HTTP endpoint using PORT from environment variable
+                    // Configure only HTTP endpoint using PORT from environment variable
+                    // This overrides any HTTPS configuration from appsettings.json
                     var port = Environment.GetEnvironmentVariable("PORT");
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
                     {
                         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
                     });
+                });
+                
+                // Disable HTTPS redirection in production
+                builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
+                {
+                    options.RedirectStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status307TemporaryRedirect;
+                    options.HttpsPort = null; // Disable HTTPS redirection
                 });
             }
 
