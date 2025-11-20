@@ -209,10 +209,51 @@ File `public/_redirects` đã được tạo để redirect tất cả routes v�
 /*    /index.html   200
 ```
 
-Điều này cho phép React Router xử lý client-side routing đúng cách. Nếu vẫn gặp lỗi "Not Found":
-1. Đảm bảo file `_redirects` đã được push lên Git
-2. Kiểm tra file có trong `public/` folder
-3. Render sẽ tự động nhận file `_redirects` và apply redirect rules
+**⚠️ QUAN TRỌNG:** Nếu vẫn gặp lỗi "Not Found" sau khi có file `_redirects`, cần cấu hình **Redirects/Rewrites** trong Render Dashboard:
+
+### Cách 1: File `_redirects` (Tự động - đã có)
+
+File `public/_redirects` sẽ tự động được Vite copy vào `dist/` khi build. Render sẽ tự động nhận file này.
+
+**Kiểm tra:**
+1. File `_redirects` có trong `public/` folder ✅
+2. Sau khi build, file có trong `dist/` folder
+3. File đã được push lên Git
+
+### Cách 2: Cấu hình trong Render Dashboard (Nếu Cách 1 không hoạt động)
+
+Nếu file `_redirects` không hoạt động, cấu hình thủ công trong Render:
+
+1. **Vào Render Dashboard:**
+   - Đăng nhập Render
+   - Chọn Static Site (Frontend service)
+
+2. **Settings → Redirects/Rewrites:**
+   - Click **"Add Redirect"** hoặc **"Add Rewrite"**
+   - **Source:** `/*`
+   - **Destination:** `/index.html`
+   - **Action:** `Rewrite` (hoặc `Redirect` với status code `200`)
+
+3. **Save và Redeploy:**
+   - Click **"Save Changes"**
+   - Render sẽ tự động rebuild và redeploy
+
+### Kiểm tra sau khi fix:
+
+1. **Test routes:**
+   - `https://front-end-fnfs.onrender.com/` → Home ✅
+   - `https://front-end-fnfs.onrender.com/login` → Login ✅
+   - `https://front-end-fnfs.onrender.com/dashboard` → Dashboard ✅
+
+2. **Test refresh:**
+   - Vào bất kỳ route nào (ví dụ: `/login`)
+   - Refresh trang (F5)
+   - Không được báo "Not Found" ✅
+
+3. **Test direct access:**
+   - Mở tab mới
+   - Gõ trực tiếp URL: `https://front-end-fnfs.onrender.com/login`
+   - Trang load đúng ✅
 
 **Environment Variables:** ⭐ **QUAN TRỌNG!**
 
