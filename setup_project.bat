@@ -1,0 +1,231 @@
+@echo off
+setlocal enabledelayedexpansion
+
+echo =================================================================================================================
+echo                                       OJT Laboratory Project Setup Script
+echo =================================================================================================================
+echo.
+
+REM --- Load Git Configuration ---
+call git_config.bat
+
+REM --- Step 1: Create Root Folder ---
+echo [1/16] Create Main Folder...
+mkdir OJT_Laboratory_Project
+cd OJT_Laboratory_Project
+
+REM --- Step 2: Create Child Folders ---
+echo [2/16] Create Child Folders...
+mkdir IAM_Service
+mkdir Laboratory_Service
+mkdir Front_End
+mkdir Monitoring_Service
+mkdir Simulator_Service
+
+REM --- Step 3: Configure IAM_Service ---
+echo [3/16] Configure repository IAM_Service...
+cd IAM_Service
+git init
+git remote add origin %IAM_SERVICE_REPO_URL%
+git fetch origin
+git checkout -b %IAM_SERVICE_BRANCH% origin/%IAM_SERVICE_BRANCH%
+git pull origin %IAM_SERVICE_BRANCH%
+cd ..
+
+REM --- Step 4: Configure Laboratory_Service ---
+echo [4/16] Configure repository Laboratory_Service...
+cd Laboratory_Service
+git init
+git remote add origin %LABORATORY_SERVICE_REPO_URL%
+git fetch origin
+git checkout -b %LABORATORY_SERVICE_BRANCH% origin/%LABORATORY_SERVICE_BRANCH%
+git pull origin %LABORATORY_SERVICE_BRANCH%
+cd ..
+
+REM --- Step 5: Configure Front_End ---
+echo [5/16] Configure repository Front_End...
+cd Front_End
+git init
+git remote add origin %FRONT_END_REPO_URL%
+git fetch origin
+git checkout -b %FRONT_END_BRANCH% origin/%FRONT_END_BRANCH%
+git pull origin %FRONT_END_BRANCH%
+cd ..
+
+REM --- Step 6: Configure Monitoring_Service ---
+echo [6/16] Configure repository Monitoring_Service...
+cd Monitoring_Service
+git init
+git remote add origin %MONITORING_SERVICE_REPO_URL%
+git fetch origin
+git checkout -b %MONITORING_SERVICE_BRANCH% origin/%MONITORING_SERVICE_BRANCH%
+git pull origin %MONITORING_SERVICE_BRANCH%
+cd ..
+
+REM --- Step 7: Configure Simulator_Service ---
+echo [7/16] Configure repository Simulator_Service...
+cd Simulator_Service
+git init
+git remote add origin %SIMULATOR_SERVICE_REPO_URL%
+git fetch origin
+git checkout -b %SIMULATOR_SERVICE_BRANCH% origin/%SIMULATOR_SERVICE_BRANCH%
+git pull origin %SIMULATOR_SERVICE_BRANCH%
+cd ..
+
+REM --- Step 8: Restore NuGet Packages for IAM_Service ---
+echo [8/16] Restoring NuGet Packages for IAM_Service...
+cd IAM_Service
+dotnet restore
+cd ..
+
+REM --- Step 9: Restore NuGet Packages for Laboratory_Service ---
+echo [9/16] Restoring NuGet Packages for Laboratory_Service...
+cd Laboratory_Service
+dotnet restore
+cd ..
+
+REM --- Step 10: Restore NuGet Packages for Monitoring_Service ---
+echo [10/16] Restoring NuGet Packages for Monitoring_Service...
+cd Monitoring_Service
+dotnet restore
+cd ..
+
+REM --- Step 11: Restore NuGet Packages for Simulator_Service ---
+echo [11/16] Restoring NuGet Packages for Simulator_Service...
+cd Simulator_Service
+dotnet restore
+cd ..
+
+REM --- Step 12: Build IAM_Service ---
+echo [12/16] Building IAM_Service with .NET...
+cd IAM_Service
+dotnet build 
+cd ..
+
+REM --- Step 13: Build Laboratory_Service ---
+echo [13/16] Building Laboratory_Service with .NET...
+cd Laboratory_Service
+dotnet build 
+cd ..
+
+REM --- Step 14: Build Monitoring_Service ---
+echo [14/16] Building Monitoring_Service with .NET...
+cd Monitoring_Service
+dotnet build 
+cd ..
+
+REM --- Step 15: Build Simulator_Service ---
+echo [15/16] Building Simulator_Service with .NET...
+cd Simulator_Service
+dotnet build 
+cd ..
+
+REM --- Step 16: Call npm install script ---
+echo [16/16] Calling npm install script...
+call .\install_npm.bat
+
+cd ..
+
+REM --- Step 17: Copy Database Scripts to OJT_Laboratory_Project ---
+echo [17/17] Copying database migration scripts...
+if exist "clear_all_migrations.bat" (
+    copy /Y "clear_all_migrations.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied clear_all_migrations.bat
+)
+if exist "create_all_migrations.bat" (
+    copy /Y "create_all_migrations.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied create_all_migrations.bat
+)
+if exist "update_all_databases.bat" (
+    copy /Y "update_all_databases.bat" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied update_all_databases.bat
+)
+if exist "README_DATABASE_SCRIPTS.md" (
+    copy /Y "README_DATABASE_SCRIPTS.md" "OJT_Laboratory_Project\" >nul 2>&1
+    echo   - Copied README_DATABASE_SCRIPTS.md
+)
+echo   Database scripts copied successfully!
+echo.
+
+echo.
+echo ================================================================================================================
+echo                                         Success Setup Project!
+echo ================================================================================================================
+echo Folder: %cd%\OJT_Laboratory_Project
+echo.
+
+REM --- Step 18: Optional Database Migration Reset ---
+echo.
+echo ================================================================================================================
+echo                         Optional: Reset Database Migrations
+echo ================================================================================================================
+echo.
+echo This will:
+echo   1. Clear all existing migrations and snapshots
+echo   2. Create new initial migrations for all services
+echo   3. Update the database with fresh migrations
+echo.
+echo WARNING: This will DELETE all existing migration files!
+echo.
+set /p RESET_DB="Do you want to reset database migrations? (y/n): "
+
+if /i "%RESET_DB%"=="y" (
+    echo.
+    powershell -Command "Write-Host 'Starting database migration reset...' -ForegroundColor DarkCyan"
+    echo.
+    
+    REM Clear all migrations (using script from Deploy folder)
+    echo [Step 1/3] Clearing all existing migrations...
+    call clear_all_migrations.bat
+    if %ERRORLEVEL% neq 0 (
+        powershell -Command "Write-Host 'Warning: Clear migrations had errors, continuing...' -ForegroundColor DarkYellow"
+    )
+    echo.
+    
+    REM Create new initial migrations (using script from Deploy folder)
+    echo [Step 2/3] Creating new initial migrations...
+    call create_all_migrations.bat "InitialCreate"
+    if %ERRORLEVEL% neq 0 (
+        powershell -Command "Write-Host 'Error: Failed to create migrations!' -ForegroundColor DarkRed"
+        goto :skip_reset
+    )
+    echo.
+    
+    REM Update database (using script from Deploy folder)
+    echo [Step 3/3] Updating database...
+    call update_all_databases.bat
+    if %ERRORLEVEL% neq 0 (
+        powershell -Command "Write-Host 'Warning: Database update had errors. Please check manually.' -ForegroundColor DarkYellow"
+    )
+    echo.
+    
+    powershell -Command "Write-Host 'Database migration reset completed!' -ForegroundColor DarkGreen"
+    echo.
+    goto :continue_setup
+)
+
+:skip_reset
+echo.
+echo Database migration reset skipped.
+echo You can run it manually later using:
+echo   cd Deploy
+echo   clear_all_migrations.bat
+echo   create_all_migrations.bat "InitialCreate"
+echo   update_all_databases.bat
+echo.
+echo Or from OJT_Laboratory_Project folder:
+echo   cd OJT_Laboratory_Project
+echo   clear_all_migrations.bat
+echo   create_all_migrations.bat "InitialCreate"
+echo   update_all_databases.bat
+echo.
+
+:continue_setup
+
+REM --- Open VS Code ---
+echo Opening VS Code...
+cd OJT_Laboratory_Project
+code .
+cd ..
+
+pause
