@@ -202,6 +202,17 @@ dotnet ef database update --project IAM_Service.Infrastructure/IAM_Service.Infra
 - Render sẽ tự động serve files trong Publish Directory sau khi build
 - Nếu thấy lỗi "Missing script: start", có nghĩa là đang cấu hình sai (chọn Web Service thay vì Static Site)
 
+**❓ FAQ: "File `index.html` chỉ có `<div id="root"></div>` rỗng, có cần Web Service không?"**
+
+**Trả lời: KHÔNG! Đây là cách React SPA hoạt động bình thường.**
+
+- File `index.html` chỉ là **entry point** - không cần server-side rendering
+- React sẽ **render toàn bộ UI** vào `<div id="root">` bằng JavaScript (chạy trong browser)
+- JavaScript files trong `assets/` chứa toàn bộ code React (đã được compile)
+- **Tất cả logic chạy client-side** → Vẫn là Static Site, không cần Web Service
+
+Xem file `REACT_STATIC_SITE_EXPLAINED.md` để hiểu chi tiết cách React SPA hoạt động.
+
 **🔧 Fix "Not Found" Error (React Router):**
 
 File `public/_redirects` đã được tạo để redirect tất cả routes về `index.html`:
