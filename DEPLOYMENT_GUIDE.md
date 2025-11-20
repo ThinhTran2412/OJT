@@ -214,10 +214,25 @@ File `public/_redirects` đã được tạo để redirect tất cả routes v�
 2. Kiểm tra file có trong `public/` folder
 3. Render sẽ tự động nhận file `_redirects` và apply redirect rules
 
-**Environment Variables:**
-- `VITE_API_BASE_URL` - URL của IAM_Service API
+**Environment Variables:** ⭐ **QUAN TRỌNG!**
+
+Vì frontend dùng axios để gọi API, cần set các environment variables:
+
+- **`VITE_API_BASE_URL`** - URL của IAM_Service API (chính)
   - Ví dụ: `https://iam-service.onrender.com`
-- Các biến môi trường khác nếu cần
+  - Dùng cho: Auth, User, Role, EventLog, PatientInfo
+  
+- **`VITE_AUTH_API_URL`** - URL của IAM_Service (nếu cần override)
+  - Ví dụ: `https://iam-service.onrender.com`
+  
+- **`VITE_PATIENT_API_URL`** - URL của Laboratory_Service
+  - Ví dụ: `https://laboratory-service.onrender.com`
+  - Dùng cho: Patient, TestOrder, TestResult, AI Review, MedicalRecord
+
+**Lưu ý:**
+- Proxy trong `vite.config.js` chỉ hoạt động khi chạy `npm run dev` (development)
+- Khi deploy production, axios sẽ gọi trực tiếp đến backend URL từ environment variables
+- Không cần proxy trên production
 
 ### 3.2. Cấu hình Environment Variables
 
@@ -231,13 +246,26 @@ VITE_LABORATORY_API_URL=https://laboratory-service.onrender.com
 
 **Lưu ý:** Vite chỉ expose các biến bắt đầu bằng `VITE_` trong frontend.
 
-### 3.3. Update API Configuration
+### 3.3. Kiểm tra API Configuration
 
-Cập nhật file `src/services/api.js` để dùng environment variables:
+File `src/services/api.js` đã được cấu hình để dùng environment variables:
 
 ```javascript
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5044';
+const api = axios.create({
+  baseURL: import.meta.env.PROD
+    ? import.meta.env.VITE_API_BASE_URL  // Production: dùng env var
+    : "/api",  // Development: dùng proxy từ vite.config.js
+  // ...
+});
 ```
+
+**Cách hoạt động:**
+- **Development (`npm run dev`):** Dùng proxy từ `vite.config.js` → `/api` → proxy đến localhost
+- **Production (deploy):** Dùng trực tiếp `VITE_API_BASE_URL` → gọi đến backend trên Render
+
+**⚠️ Quan trọng:**
+- Environment variables phải bắt đầu bằng `VITE_` để Vite expose cho frontend
+- Sau khi set env vars trên Render, cần rebuild để áp dụng
 
 ### 3.4. Build và Deploy
 
@@ -253,6 +281,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5044
 - Không phải lỗi - site vẫn hoạt động tốt
 - Đã được optimize với manual chunks trong `vite.config.js`
 - Nếu muốn optimize thêm, có thể dùng code splitting với React.lazy
+
+**📝 Giải thích về React Static Site:**
+
+React app **VẪN LÀ Static Site** sau khi build:
+1. **JSX được compile:** Khi chạy `npm run build`, Vite compile JSX thành JavaScript
+2. **Output là static files:** Tạo ra HTML, CSS, JS trong folder `dist/`
+3. **Axios chạy client-side:** Axios là JavaScript library chạy trong browser, gọi API đến backend
+4. **Không cần server runtime:** Static Site chỉ serve files, không cần Node.js server
+
+**Development vs Production:**
+- **Dev (`npm run dev`):** Proxy trong `vite.config.js` hoạt động để redirect `/api` → localhost
+- **Production (deploy):** Axios gọi trực tiếp đến backend URL từ `VITE_API_BASE_URL` environment variable
 
 ### 3.5. Custom Domain (Tùy chọn)
 
