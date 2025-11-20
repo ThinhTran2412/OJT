@@ -79,22 +79,39 @@ update_databases_prod.bat
 
 **Repository:** `https://github.com/ThinhTran2412/OJT`  
 **Branch:** `master`  
-**Type:** Monorepo
+**Type:** Monorepo (tất cả services trong 1 repository)
 
 ### 3.2. IAM_Service
 
-**Service Type:** Web Service  
+**Service Type:** Web Service (Docker)  
 **Root Directory:** `OJT_Laboratory_Project/IAM_Service`  
 **Dockerfile Path:** `IAM_Service.API/Dockerfile`  
-**Start Command:** (Không cần)
+**Dockerfile Location:** `OJT_Laboratory_Project/IAM_Service/IAM_Service.API/Dockerfile`  
+**.dockerignore Location:** `OJT_Laboratory_Project/IAM_Service/IAM_Service.API/.dockerignore`
+
+**Build Configuration:**
+- **Build Command:** (Render tự động build từ Dockerfile)
+- **Start Command:** (Không cần - Dockerfile đã có ENTRYPOINT)
+- **Docker Build Context:** Root Directory (`OJT_Laboratory_Project/IAM_Service`)
+
+**Dockerfile Entry Point:**
+```dockerfile
+ENTRYPOINT ["dotnet", "IAM_Service.API.dll"]
+```
 
 **Environment Variables:**
 - `DATABASE_URL` - Tự động từ Render database (nếu cùng Project)
-- `PORT` - Tự động từ Render
+- `PORT` - Tự động từ Render (default: 8080)
 
-**Build Command:**
-```bash
-docker build -f IAM_Service.API/Dockerfile -t iam-service .
+**Files Structure:**
+```
+OJT_Laboratory_Project/IAM_Service/
+├── IAM_Service.API/
+│   ├── Dockerfile          # Docker build file
+│   ├── .dockerignore       # Docker ignore patterns
+│   └── Program.cs          # Main entry point
+├── NuGet.config            # NuGet package configuration
+└── nuget/                  # Local NuGet packages
 ```
 
 **Deploy URL:** `https://iam-service-fz3h.onrender.com`
@@ -103,24 +120,103 @@ docker build -f IAM_Service.API/Dockerfile -t iam-service .
 
 ### 3.3. Laboratory_Service
 
-**Service Type:** Web Service  
+**Service Type:** Web Service (Docker)  
 **Root Directory:** `OJT_Laboratory_Project/Laboratory_Service`  
 **Dockerfile Path:** `Laboratory_Service.API/Dockerfile`  
-**Start Command:** (Không cần)
+**Dockerfile Location:** `OJT_Laboratory_Project/Laboratory_Service/Laboratory_Service.API/Dockerfile`  
+**.dockerignore Location:** `OJT_Laboratory_Project/Laboratory_Service/Laboratory_Service.API/.dockerignore`
+
+**Build Configuration:**
+- **Build Command:** (Render tự động build từ Dockerfile)
+- **Start Command:** (Không cần - Dockerfile đã có ENTRYPOINT)
+- **Docker Build Context:** Root Directory (`OJT_Laboratory_Project/Laboratory_Service`)
+
+**Dockerfile Entry Point:**
+```dockerfile
+ENTRYPOINT ["dotnet", "Laboratory_Service.API.dll"]
+```
 
 **Environment Variables:**
-- `DATABASE_URL` - Tự động từ Render database
-- `PORT` - Tự động từ Render
+- `DATABASE_URL` - Tự động từ Render database (nếu cùng Project)
+- `PORT` - Tự động từ Render (default: 8080)
+
+**Files Structure:**
+```
+OJT_Laboratory_Project/Laboratory_Service/
+├── Laboratory_Service.API/
+│   ├── Dockerfile          # Docker build file
+│   ├── .dockerignore       # Docker ignore patterns
+│   └── Program.cs          # Main entry point
+├── NuGet.config            # NuGet package configuration
+└── nuget/                  # Local NuGet packages
+```
 
 ---
 
-### 3.4. Monitoring_Service & Simulator_Service
+### 3.4. Monitoring_Service
 
-**Configuration tương tự như các services trên.**
+**Service Type:** Web Service (Docker)  
+**Root Directory:** `OJT_Laboratory_Project/Monitoring_Service`  
+**Dockerfile Path:** `Monitoring_Service.API/Dockerfile`  
+**Dockerfile Location:** `OJT_Laboratory_Project/Monitoring_Service/Monitoring_Service.API/Dockerfile`  
+**.dockerignore Location:** `OJT_Laboratory_Project/Monitoring_Service/Monitoring_Service.API/.dockerignore`
 
-**Root Directories:**
-- Monitoring_Service: `OJT_Laboratory_Project/Monitoring_Service`
-- Simulator_Service: `OJT_Laboratory_Project/Simulator_Service`
+**Build Configuration:**
+- **Build Command:** (Render tự động build từ Dockerfile)
+- **Start Command:** (Không cần - Dockerfile đã có ENTRYPOINT)
+- **Docker Build Context:** Root Directory (`OJT_Laboratory_Project/Monitoring_Service`)
+
+**Dockerfile Entry Point:**
+```dockerfile
+ENTRYPOINT ["dotnet", "Monitoring_Service.API.dll"]
+```
+
+**Environment Variables:**
+- `DATABASE_URL` - Tự động từ Render database (nếu cùng Project)
+- `PORT` - Tự động từ Render (default: 8080)
+
+**Files Structure:**
+```
+OJT_Laboratory_Project/Monitoring_Service/
+├── Monitoring_Service.API/
+│   ├── Dockerfile          # Docker build file
+│   ├── .dockerignore       # Docker ignore patterns
+│   └── Program.cs          # Main entry point
+```
+
+---
+
+### 3.5. Simulator_Service
+
+**Service Type:** Web Service (Docker)  
+**Root Directory:** `OJT_Laboratory_Project/Simulator_Service`  
+**Dockerfile Path:** `Simulator.API/Dockerfile`  
+**Dockerfile Location:** `OJT_Laboratory_Project/Simulator_Service/Simulator.API/Dockerfile`  
+**.dockerignore Location:** `OJT_Laboratory_Project/Simulator_Service/Simulator.API/.dockerignore`
+
+**Build Configuration:**
+- **Build Command:** (Render tự động build từ Dockerfile)
+- **Start Command:** (Không cần - Dockerfile đã có ENTRYPOINT)
+- **Docker Build Context:** Root Directory (`OJT_Laboratory_Project/Simulator_Service`)
+
+**Dockerfile Entry Point:**
+```dockerfile
+ENTRYPOINT ["dotnet", "Simulator.API.dll"]
+```
+
+**Environment Variables:**
+- `DATABASE_URL` - Tự động từ Render database (nếu cùng Project)
+- `PORT` - Tự động từ Render (default: 8080)
+- `RabbitMQ:HostName` - RabbitMQ server hostname (từ appsettings.json)
+
+**Files Structure:**
+```
+OJT_Laboratory_Project/Simulator_Service/
+├── Simulator.API/
+│   ├── Dockerfile          # Docker build file
+│   ├── .dockerignore       # Docker ignore patterns
+│   └── Program.cs          # Main entry point
+```
 
 ---
 
@@ -132,7 +228,41 @@ docker build -f IAM_Service.API/Dockerfile -t iam-service .
 **Root Directory:** `OJT_Laboratory_Project/Front_End`  
 **Build Command:** `npm install; npm run build`  
 **Publish Directory:** `dist`  
-**Start Command:** (Không cần - Static Site)
+**Start Command:** (Để trống - Static Site không cần start command)
+
+### 4.1.1. File Structure
+
+**Important Files:**
+- `package.json` - Node.js dependencies và scripts
+- `vite.config.js` - Vite build configuration
+- `public/_redirects` - Routing configuration cho React Router
+- `src/services/api.js` - API client configuration
+
+**Build Output:**
+- `dist/` - Directory chứa built static files (HTML, CSS, JS)
+
+**package.json Scripts:**
+```json
+{
+  "scripts": {
+    "dev": "vite",              # Development server
+    "build": "vite build",      # Production build
+    "preview": "vite preview"   # Preview production build
+  }
+}
+```
+
+### 4.1.2. Build Process
+
+**Build Command (Render tự động chạy):**
+```bash
+npm install; npm run build
+```
+
+**Build Output Location:**
+- Publish Directory: `dist`
+- Main HTML file: `dist/index.html`
+- Static assets: `dist/assets/`
 
 ### 4.2. Environment Variables
 
@@ -252,9 +382,79 @@ File này tự động được Render nhận diện để handle client-side ro
 
 ---
 
-## 8. Quick Reference
+## 8. Quick Reference - Render Dashboard Configuration
 
-### Development Workflow
+### 8.1. Backend Services Configuration
+
+#### IAM_Service
+
+| Setting | Value |
+|---------|-------|
+| **Service Type** | Web Service |
+| **Repository** | `https://github.com/ThinhTran2412/OJT` |
+| **Branch** | `master` |
+| **Root Directory** | `OJT_Laboratory_Project/IAM_Service` |
+| **Dockerfile Path** | `IAM_Service.API/Dockerfile` |
+| **Build Command** | (Để trống - Render tự động build Docker) |
+| **Start Command** | (Để trống - Dockerfile đã có ENTRYPOINT) |
+| **Environment** | Docker |
+
+#### Laboratory_Service
+
+| Setting | Value |
+|---------|-------|
+| **Service Type** | Web Service |
+| **Repository** | `https://github.com/ThinhTran2412/OJT` |
+| **Branch** | `master` |
+| **Root Directory** | `OJT_Laboratory_Project/Laboratory_Service` |
+| **Dockerfile Path** | `Laboratory_Service.API/Dockerfile` |
+| **Build Command** | (Để trống - Render tự động build Docker) |
+| **Start Command** | (Để trống - Dockerfile đã có ENTRYPOINT) |
+| **Environment** | Docker |
+
+#### Monitoring_Service
+
+| Setting | Value |
+|---------|-------|
+| **Service Type** | Web Service |
+| **Repository** | `https://github.com/ThinhTran2412/OJT` |
+| **Branch** | `master` |
+| **Root Directory** | `OJT_Laboratory_Project/Monitoring_Service` |
+| **Dockerfile Path** | `Monitoring_Service.API/Dockerfile` |
+| **Build Command** | (Để trống - Render tự động build Docker) |
+| **Start Command** | (Để trống - Dockerfile đã có ENTRYPOINT) |
+| **Environment** | Docker |
+
+#### Simulator_Service
+
+| Setting | Value |
+|---------|-------|
+| **Service Type** | Web Service |
+| **Repository** | `https://github.com/ThinhTran2412/OJT` |
+| **Branch** | `master` |
+| **Root Directory** | `OJT_Laboratory_Project/Simulator_Service` |
+| **Dockerfile Path** | `Simulator.API/Dockerfile` |
+| **Build Command** | (Để trống - Render tự động build Docker) |
+| **Start Command** | (Để trống - Dockerfile đã có ENTRYPOINT) |
+| **Environment** | Docker |
+
+---
+
+### 8.2. Frontend Configuration
+
+| Setting | Value |
+|---------|-------|
+| **Service Type** | Static Site |
+| **Repository** | `https://github.com/ThinhTran2412/OJT` |
+| **Branch** | `master` |
+| **Root Directory** | `OJT_Laboratory_Project/Front_End` |
+| **Build Command** | `npm install; npm run build` |
+| **Publish Directory** | `dist` |
+| **Start Command** | (Để trống - Static Site) |
+
+---
+
+### 8.3. Development Workflow
 
 1. **Setup project:**
    ```batch
@@ -264,6 +464,10 @@ File này tự động được Render nhận diện để handle client-side ro
 
 2. **Create migrations:**
    ```batch
+   create_migrations_dev.bat "MigrationName"
+   ```
+   Hoặc:
+   ```batch
    create_all_migrations.bat "MigrationName"
    ```
 
@@ -271,16 +475,25 @@ File này tự động được Render nhận diện để handle client-side ro
    ```batch
    update_databases_dev.bat
    ```
+   Hoặc:
+   ```batch
+   update_all_databases.bat
+   ```
 
 4. **Run services locally:**
    - IAM_Service: `https://localhost:7155`
    - Laboratory_Service: `https://localhost:7157`
+   - Monitoring_Service: `https://localhost:7159`
+   - Simulator_Service: `https://localhost:7158`
    - Frontend: `http://localhost:5173`
 
-### Production Workflow
+---
+
+### 8.4. Production Workflow
 
 1. **Commit and push changes:**
    ```batch
+   cd Deploy
    git add .
    git commit -m "Description"
    git push origin master
@@ -295,7 +508,59 @@ File này tự động được Render nhận diện để handle client-side ro
 
 ---
 
-## 9. Useful Links
+## 9. Render Deployment Checklist
+
+### 9.1. Before Deploy
+
+- [ ] Database đã được tạo trên Render
+- [ ] Tất cả migration files đã được commit và push
+- [ ] Dockerfiles đã có trong repository
+- [ ] `.dockerignore` files đã có
+- [ ] `appsettings.Production.json` đã được cấu hình đúng
+- [ ] CORS origins đã được cấu hình trong `appsettings.Production.json`
+
+### 9.2. Backend Services Setup
+
+Cho mỗi service (IAM_Service, Laboratory_Service, Monitoring_Service, Simulator_Service):
+
+- [ ] **Service Type:** Web Service
+- [ ] **Environment:** Docker
+- [ ] **Repository:** `https://github.com/ThinhTran2412/OJT`
+- [ ] **Branch:** `master`
+- [ ] **Root Directory:** `OJT_Laboratory_Project/[Service_Name]`
+- [ ] **Dockerfile Path:** `[Service_API]/Dockerfile`
+- [ ] **Build Command:** (Để trống)
+- [ ] **Start Command:** (Để trống)
+- [ ] **Auto-Deploy:** Enabled (khuyến nghị)
+- [ ] **DATABASE_URL:** (Tự động nếu cùng Project)
+
+### 9.3. Frontend Setup
+
+- [ ] **Service Type:** Static Site
+- [ ] **Repository:** `https://github.com/ThinhTran2412/OJT`
+- [ ] **Branch:** `master`
+- [ ] **Root Directory:** `OJT_Laboratory_Project/Front_End`
+- [ ] **Build Command:** `npm install; npm run build`
+- [ ] **Publish Directory:** `dist`
+- [ ] **Start Command:** (Để trống)
+- [ ] **Auto-Deploy:** Enabled (khuyến nghị)
+- [ ] **Environment Variables:**
+  - [ ] `VITE_API_BASE_URL` = `https://iam-service-fz3h.onrender.com`
+  - [ ] `VITE_AUTH_API_URL` = `https://iam-service-fz3h.onrender.com`
+  - [ ] `VITE_PATIENT_API_URL` = `https://laboratory-service-url.onrender.com`
+
+### 9.4. After Deploy
+
+- [ ] Kiểm tra services đã start thành công
+- [ ] Kiểm tra logs để đảm bảo không có lỗi
+- [ ] Chạy migrations: `update_databases_prod.bat`
+- [ ] Test API endpoints
+- [ ] Test frontend routing
+- [ ] Test CORS (từ frontend gọi API)
+
+---
+
+## 10. Useful Links
 
 - **Frontend:** https://front-end-fnfs.onrender.com
 - **IAM Service:** https://iam-service-fz3h.onrender.com
