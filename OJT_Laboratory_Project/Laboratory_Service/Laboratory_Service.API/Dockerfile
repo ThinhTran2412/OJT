@@ -16,6 +16,16 @@ COPY ["Laboratory_Service.Domain/Laboratory_Service.Domain.csproj", "Laboratory_
 COPY ["Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj", "Laboratory_Service.Infrastructure/"]
 COPY ["ShareLibrarySolution/SharedLibrary.csproj", "ShareLibrarySolution/"]
 
+# Copy proto files from other services (required for gRPC clients)
+# Create directory structure to match the reference paths in csproj files
+# Path 1: ../../IAM_Service/IAM_Service.API/Protos/user_service.proto
+RUN mkdir -p ../IAM_Service/IAM_Service.API/Protos
+COPY ["ExternalProtos/IAM_Service/IAM_Service.API/Protos/user_service.proto", "../IAM_Service/IAM_Service.API/Protos/"]
+
+# Path 2: ../../Simulator_Service/Simulator.API/Protos/simulator_query.proto
+RUN mkdir -p ../Simulator_Service/Simulator.API/Protos
+COPY ["ExternalProtos/Simulator_Service/Simulator.API/Protos/simulator_query.proto", "../Simulator_Service/Simulator.API/Protos/"]
+
 # Restore dependencies (NuGet.config will use local nuget source)
 RUN dotnet restore "./Laboratory_Service.API/Laboratory_Service.API.csproj"
 
