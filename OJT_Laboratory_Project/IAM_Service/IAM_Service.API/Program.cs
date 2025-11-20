@@ -15,10 +15,15 @@ namespace IAM_Service.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure Kestrel for Production - use PORT from environment variable (Render default)
+            // Disable HTTPS in production - Render handles HTTPS at the load balancer level
             if (builder.Environment.IsProduction())
             {
                 builder.WebHost.ConfigureKestrel(options =>
                 {
+                    // Clear all endpoints first
+                    options.Configure().Endpoints.Clear();
+                    
+                    // Add only HTTP endpoint using PORT from environment variable
                     var port = Environment.GetEnvironmentVariable("PORT");
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
