@@ -38,6 +38,21 @@ namespace IAM_Service.API
                 });
             }
 
+            // Configure CORS
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? new[] { "https://front-end-fnfs.onrender.com", "http://localhost:5173", "http://localhost:3000" };
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
             // Add controllers and Swagger
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +106,7 @@ namespace IAM_Service.API
             }
 
             // Middlewares
+            app.UseCors("AllowFrontend"); // Must be before UseAuthentication and UseAuthorization
             app.UseSharePolicies();
             app.UseAuthentication();
             app.UseAuthorization();
