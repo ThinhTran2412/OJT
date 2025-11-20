@@ -12,9 +12,20 @@ const api = axios.create({
   withCredentials: false,
 });
 
-
 api.interceptors.request.use(
   (config) => {
+    // Ensure /api prefix in production
+    if (import.meta.env.PROD) {
+      const baseURL = api.defaults.baseURL || '';
+      if (baseURL && !baseURL.endsWith('/api')) {
+        // Production: baseURL is full domain (https://iam-service-fz3h.onrender.com)
+        // Add /api prefix to all routes
+        if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
+          config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+        }
+      }
+    }
+    
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -61,6 +72,19 @@ api.interceptors.response.use(
           headers: { 'Content-Type': 'application/json' },
           timeout: 15000,
           withCredentials: false,
+        });
+        
+        // Add /api prefix interceptor for refreshClient too
+        refreshClient.interceptors.request.use((config) => {
+          if (import.meta.env.PROD) {
+            const baseURL = refreshClient.defaults.baseURL || '';
+            if (baseURL && !baseURL.endsWith('/api')) {
+              if (config.url && !config.url.startsWith('/api/') && !config.url.startsWith('http')) {
+                config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+              }
+            }
+          }
+          return config;
         });
 
         const refreshResponse = await refreshClient.post('/Auth/refresh', { refreshToken });
