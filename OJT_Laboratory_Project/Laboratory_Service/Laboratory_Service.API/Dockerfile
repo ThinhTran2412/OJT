@@ -3,6 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
+# Copy NuGet.config first (for local package source)
+COPY ["NuGet.config", "./"]
+
+# Copy local nuget packages
+COPY ["nuget/", "./nuget/"]
+
 # Copy csproj files first for better layer caching
 COPY ["Laboratory_Service.API/Laboratory_Service.API.csproj", "Laboratory_Service.API/"]
 COPY ["Laboratory_Service.Application/Laboratory_Service.Application.csproj", "Laboratory_Service.Application/"]
@@ -10,7 +16,7 @@ COPY ["Laboratory_Service.Domain/Laboratory_Service.Domain.csproj", "Laboratory_
 COPY ["Laboratory_Service.Infrastructure/Laboratory_Service.Infrastructure.csproj", "Laboratory_Service.Infrastructure/"]
 COPY ["ShareLibrarySolution/SharedLibrary/SharedLibrary.csproj", "ShareLibrarySolution/SharedLibrary/"]
 
-# Restore dependencies
+# Restore dependencies (NuGet.config will use local nuget source)
 RUN dotnet restore "./Laboratory_Service.API/Laboratory_Service.API.csproj"
 
 # Copy all source code

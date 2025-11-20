@@ -11,11 +11,21 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copy NuGet.config first (for local package source)
+COPY ["NuGet.config", "./"]
+
+# Copy local nuget packages
+COPY ["nuget/", "./nuget/"]
+
+# Copy csproj files for better layer caching
 COPY ["IAM_Service.API/IAM_Service.API.csproj", "IAM_Service.API/"]
 COPY ["IAM_Service.Application/IAM_Service.Application.csproj", "IAM_Service.Application/"]
 COPY ["IAM_Service.Domain/IAM_Service.Domain.csproj", "IAM_Service.Domain/"]
 COPY ["IAM_Service.Infrastructure/IAM_Service.Infrastructure.csproj", "IAM_Service.Infrastructure/"]
 COPY ["ShareLibrarySolution/SharedLibrary/SharedLibrary.csproj", "ShareLibrarySolution/SharedLibrary/"]
+
+# Restore dependencies (NuGet.config will use local nuget source)
 RUN dotnet restore "./IAM_Service.API/IAM_Service.API.csproj"
 COPY . .
 WORKDIR "/src/IAM_Service.API"
