@@ -57,15 +57,24 @@ namespace Laboratory_Service.Infrastructure
             {
                 // On Render, prefer private service URL from environment variable for inter-service gRPC
                 // Private URLs format: http://<service-name>:8080 (e.g., http://iam-service-fz3h:8080)
-                var grpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL") 
-                    ?? configuration["IAMService:GrpcUrl"] 
-                    ?? "http://localhost:7001";
+                // If private networking doesn't work, fallback to HTTPS public URL
+                var envGrpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL");
+                var configGrpcUrl = configuration["IAMService:GrpcUrl"];
+                var grpcUrl = envGrpcUrl ?? configGrpcUrl ?? "http://localhost:7001";
+                
+                // Log configuration to console for debugging (will appear in Render logs)
+                Console.WriteLine($"[gRPC Config] IAM Service gRPC URL Configuration:");
+                Console.WriteLine($"[gRPC Config]   - Environment Variable (IAM_SERVICE_GRPC_URL): {envGrpcUrl ?? "(not set)"}");
+                Console.WriteLine($"[gRPC Config]   - Configuration (IAMService:GrpcUrl): {configGrpcUrl ?? "(not set)"}");
+                Console.WriteLine($"[gRPC Config]   - Final gRPC URL: {grpcUrl}");
+                Console.WriteLine($"[gRPC Config]   - Is HTTPS: {grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)}");
+                
                 options.Address = new Uri(grpcUrl);
             }).ConfigureChannel(options =>
             {
-                var grpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL") 
-                    ?? configuration["IAMService:GrpcUrl"] 
-                    ?? "http://localhost:7001";
+                var envGrpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL");
+                var configGrpcUrl = configuration["IAMService:GrpcUrl"];
+                var grpcUrl = envGrpcUrl ?? configGrpcUrl ?? "http://localhost:7001";
                 var isHttps = !string.IsNullOrEmpty(grpcUrl) && grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
                 
                 var httpHandler = new System.Net.Http.SocketsHttpHandler

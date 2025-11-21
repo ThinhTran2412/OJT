@@ -52,11 +52,16 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
         {
             try
             {
-                _logger.LogInformation("Getting user from IAM Service by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogInformation("[gRPC Call] Getting user from IAM Service by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogInformation("[gRPC Debug] gRPC Client Type: {ClientType}", _userServiceClient.GetType().FullName);
 
                 var request = new GetUserByIdentifyNumberRequest { IdentifyNumber = identifyNumber };
                 var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                _logger.LogInformation("[gRPC Debug] Starting gRPC call with deadline: {Deadline}", callOptions.Deadline);
+                
                 var response = await _userServiceClient.GetUserByIdentifyNumberAsync(request, callOptions);
+                
+                _logger.LogInformation("[gRPC Debug] gRPC call completed successfully");
 
                 if (response.Success && response.User != null)
                 {
@@ -69,12 +74,35 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
             }
             catch (RpcException ex)
             {
-                _logger.LogError(ex, "gRPC error getting user by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogError(ex, "[gRPC Error] gRPC error getting user by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogError("[gRPC Debug] RpcException StatusCode: {StatusCode}", ex.StatusCode);
+                _logger.LogError("[gRPC Debug] RpcException Status: {Status}", ex.Status.StatusCode);
+                _logger.LogError("[gRPC Debug] RpcException Detail: {Detail}", ex.Status.Detail);
+                _logger.LogError("[gRPC Debug] RpcException Message: {Message}", ex.Message);
+                
+                // Log inner exception details if available
+                if (ex.Status.DebugException != null)
+                {
+                    _logger.LogError("[gRPC Debug] DebugException Type: {ExceptionType}", ex.Status.DebugException.GetType().FullName);
+                    _logger.LogError("[gRPC Debug] DebugException Message: {Message}", ex.Status.DebugException.Message);
+                    _logger.LogError("[gRPC Debug] DebugException StackTrace: {StackTrace}", ex.Status.DebugException.StackTrace);
+                    
+                    if (ex.Status.DebugException.InnerException != null)
+                    {
+                        _logger.LogError("[gRPC Debug] InnerException Type: {ExceptionType}", ex.Status.DebugException.InnerException.GetType().FullName);
+                        _logger.LogError("[gRPC Debug] InnerException Message: {Message}", ex.Status.DebugException.InnerException.Message);
+                        _logger.LogError("[gRPC Debug] InnerException StackTrace: {StackTrace}", ex.Status.DebugException.InnerException.StackTrace);
+                    }
+                }
+                
                 return null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting user by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogError(ex, "[gRPC Error] Unexpected error getting user by IdentifyNumber: {IdentifyNumber}", identifyNumber);
+                _logger.LogError("[gRPC Debug] Exception Type: {ExceptionType}", ex.GetType().FullName);
+                _logger.LogError("[gRPC Debug] Exception Message: {Message}", ex.Message);
+                _logger.LogError("[gRPC Debug] Exception StackTrace: {StackTrace}", ex.StackTrace);
                 return null;
             }
         }
