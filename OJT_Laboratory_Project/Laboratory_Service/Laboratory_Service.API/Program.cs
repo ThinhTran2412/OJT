@@ -121,10 +121,27 @@ namespace Laboratory_Service.API
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                // Exception handler for production - must be before CORS to preserve error response
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json";
+                        var response = new { message = "An error occurred while processing your request." };
+                        await context.Response.WriteAsJsonAsync(response);
+                    });
+                });
             }
 
-            // Middlewares
-            app.UseCors("AllowFrontend"); // Must be before UseAuthentication and UseAuthorization
+            // CORS middleware - must be before authentication/authorization but after exception handling
+            // This ensures CORS headers are added to all responses including errors
+            app.UseCors("AllowFrontend");
+
             app.UseSharePolicies();
             app.UseAuthentication();
             app.UseAuthorization();
