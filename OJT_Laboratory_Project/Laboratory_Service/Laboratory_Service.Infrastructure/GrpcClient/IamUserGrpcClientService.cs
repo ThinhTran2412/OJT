@@ -184,7 +184,7 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
         {
             try
             {
-                _logger.LogInformation("Attempting to create user in IAM Service for IdentifyNumber: {IdentifyNumber}", userDetails.IdentifyNumber);
+                _logger.LogInformation("[gRPC Call] Attempting to create user in IAM Service for IdentifyNumber: {IdentifyNumber}", userDetails.IdentifyNumber);
 
                 // 1️⃣ Prepare gRPC Request
                 var request = new CreateUserRequest
@@ -202,7 +202,9 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
 
                 // 2️⃣ Call gRPC Service
                 var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                _logger.LogInformation("[gRPC Debug] Starting gRPC CreateUser call with deadline: {Deadline}", callOptions.Deadline);
                 var response = await _userServiceClient.CreateUserAsync(request, callOptions);
+                _logger.LogInformation("[gRPC Debug] gRPC CreateUser call completed successfully");
 
                 // 3️⃣ Handle response
                 if (response.Success)
