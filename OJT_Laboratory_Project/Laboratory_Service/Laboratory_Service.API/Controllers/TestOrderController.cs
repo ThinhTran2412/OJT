@@ -40,14 +40,30 @@ namespace Laboratory_Service.API.Controllers
         [SwaggerOperation(Summary = "Create a new test order", Description = "Creates a test order; handles patient/medical record per business rules.")]
         public async Task<IActionResult> Create([FromBody] CreateTestOrderCommand command)
         {
-            var userNameClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-            if (!string.IsNullOrEmpty(userNameClaim))
+            try
             {
-                command.CreatedBy = userNameClaim;
-            }
+                var userNameClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+                if (!string.IsNullOrEmpty(userNameClaim))
+                {
+                    command.CreatedBy = userNameClaim;
+                }
+                else
+                {
+                    command.CreatedBy = "System";
+                }
 
-            var orderId = await _mediator.Send(command);
-            return Ok(new { orderId = orderId });
+                var orderId = await _mediator.Send(command);
+                return Ok(new { orderId = orderId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception - will be caught by global exception handler
+                return StatusCode(500, new { message = "An error occurred while creating the test order.", error = ex.Message });
+            }
         }
 
         /// <summary>
