@@ -11,12 +11,11 @@ setlocal enabledelayedexpansion
 
 REM Get migration name from argument or prompt user to input
 if "%~1"=="" (
-    powershell -Command "$name = Read-Host 'Enter migration name'; Set-Content -Path 'migration_temp.txt' -Value $name -NoNewline"
-    if exist "migration_temp.txt" (
-        set /p MIGRATION_NAME=<migration_temp.txt
-        del "migration_temp.txt"
-    ) else (
-        powershell -Command "Write-Host 'Error: Migration name is required!' -ForegroundColor DarkRed"
+    powershell -Command "Write-Host ''"
+    powershell -Command "Write-Host 'Enter migration name:' -ForegroundColor Cyan -NoNewline"
+    set /p MIGRATION_NAME=
+    if "!MIGRATION_NAME!"=="" (
+        powershell -Command "Write-Host 'Error: Migration name cannot be empty!' -ForegroundColor DarkRed"
         exit /b 1
     )
 ) else (
