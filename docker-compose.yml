@@ -1,6 +1,13 @@
 version: '3.8'
 
 services:
+<<<<<<< HEAD
+=======
+  # PostgreSQL Database (Online from Render)
+  # Note: Services will connect to external PostgreSQL database
+  # Connection string will be provided via environment variables
+
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
@@ -18,7 +25,10 @@ services:
       - simulator-service
     networks:
       - ojt_network
+<<<<<<< HEAD
     restart: unless-stopped
+=======
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
 
   # IAM Service
   iam-service:
@@ -27,16 +37,30 @@ services:
       dockerfile: IAM_Service.API/Dockerfile
     container_name: iam_service
     environment:
+<<<<<<< HEAD
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING}
+=======
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING:-Host=localhost;Port=5432;Database=OJT_Laboratory_DB;Username=postgres;Password=12345}
+      - GrpcSettings__LaboratoryServiceUrl=http://laboratory-service:8080
+      - GrpcSettings__SimulatorServiceUrl=http://simulator-service:8080
+      - GrpcSettings__MonitoringServiceUrl=http://monitoring-service:8080
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
     expose:
       - "8080"
     networks:
       - ojt_network
+<<<<<<< HEAD
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+=======
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
       interval: 30s
       timeout: 10s
       retries: 3
@@ -49,6 +73,7 @@ services:
       dockerfile: Laboratory_Service.API/Dockerfile
     container_name: laboratory_service
     environment:
+<<<<<<< HEAD
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING}
@@ -64,6 +89,24 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+=======
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING:-Host=localhost;Port=5432;Database=OJT_Laboratory_DB;Username=postgres;Password=12345}
+      - IAMService__GrpcUrl=http://iam-service:8080
+      - IAMService__BaseUrl=http://iam-service:8080
+      - GrpcSettings__LaboratoryServiceUrl=http://laboratory-service:8080
+      - GrpcSettings__SimulatorServiceUrl=http://simulator-service:8080
+      - GrpcSettings__MonitoringServiceUrl=http://monitoring-service:8080
+    expose:
+      - "8080"
+    depends_on:
+      - iam-service
+    networks:
+      - ojt_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
       interval: 30s
       timeout: 10s
       retries: 3
@@ -76,9 +119,15 @@ services:
       dockerfile: Monitoring_Service.API/Dockerfile
     container_name: monitoring_service
     environment:
+<<<<<<< HEAD
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING}
+=======
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING:-Host=localhost;Port=5432;Database=OJT_Laboratory_DB;Username=postgres;Password=12345}
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
       - RabbitMQ__HostName=rabbitmq
       - RabbitMQ__UserName=guest
       - RabbitMQ__Password=guest
@@ -88,9 +137,14 @@ services:
       - rabbitmq
     networks:
       - ojt_network
+<<<<<<< HEAD
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+=======
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
       interval: 30s
       timeout: 10s
       retries: 3
@@ -103,16 +157,27 @@ services:
       dockerfile: Simulator.API/Dockerfile
     container_name: simulator_service
     environment:
+<<<<<<< HEAD
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING}
+=======
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${DATABASE_CONNECTION_STRING:-Host=localhost;Port=5432;Database=OJT_Laboratory_DB;Username=postgres;Password=12345}
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
     expose:
       - "8080"
     networks:
       - ojt_network
+<<<<<<< HEAD
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+=======
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
       interval: 30s
       timeout: 10s
       retries: 3
@@ -130,7 +195,10 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
     networks:
       - ojt_network
+<<<<<<< HEAD
     restart: unless-stopped
+=======
+>>>>>>> a4aba7ca414af748d24e7bdd97982b06078b1b52
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 30s
