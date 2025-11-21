@@ -1,9 +1,0 @@
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.csproj.AssemblyReference.cache
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\rpswa.dswa.cache.json
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.GeneratedMSBuildEditorConfig.editorconfig
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.AssemblyInfoInputs.cache
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.AssemblyInfo.cs
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.csproj.CoreCompileInputs.cache
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.MvcApplicationPartsAssemblyInfo.cs
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.MvcApplicationPartsAssemblyInfo.cache
-F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\obj\Development\net8.0\Simulator.API.sourcelink.json

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Simulator.Infastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bceb80010ebeca820d66444e26a27c290ee7a206")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+096d7881cdcde68b657864066c21796febe4fe11")]
 [assembly: System.Reflection.AssemblyProductAttribute("Simulator.Infastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Simulator.Infastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

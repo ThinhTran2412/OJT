@@ -133,8 +133,13 @@ static string ConvertPostgresUrlToConnectionString(string postgresUrl)
 
     var uri = new Uri(postgresUrl);
     var userInfo = uri.UserInfo.Split(':');
+    var username = userInfo[0];
+    var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
 
-    var connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={Uri.UnescapeDataString(userInfo[1])}";
+    // Nếu không có port trong URL, dùng port mặc định 5432 cho PostgreSQL
+    var port = uri.Port == -1 ? 5432 : uri.Port;
+
+    var connectionString = $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={username};Password={password}";
 
     // Add SSL mode for external connections
     if (uri.Host.Contains(".render.com") || uri.Host.Contains(".railway.app"))

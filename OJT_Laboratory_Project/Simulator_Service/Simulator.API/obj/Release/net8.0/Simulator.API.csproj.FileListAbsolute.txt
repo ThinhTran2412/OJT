@@ -1,5 +1,6 @@
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\appsettings.Development.json
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\appsettings.json
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\appsettings.Production.json
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Simulator.API.staticwebassets.endpoints.json
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Simulator.API.exe
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Simulator.API.deps.json
@@ -64,6 +65,7 @@ F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Sim
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Npgsql.dll
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\RabbitMQ.Client.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Swashbuckle.AspNetCore.Annotations.dll
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Simulator_Service\Simulator.API\bin\Release\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
