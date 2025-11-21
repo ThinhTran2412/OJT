@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Laboratory_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bceb80010ebeca820d66444e26a27c290ee7a206")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e234f1bb5aeae48de9cd93d2d731068a973c8eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("Laboratory_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Laboratory_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

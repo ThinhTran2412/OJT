@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Laboratory_Service.Application.UnitTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bceb80010ebeca820d66444e26a27c290ee7a206")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b6105337b3f8ef2b3bb6488640847025a59ea9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Laboratory_Service.Application.UnitTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Laboratory_Service.Application.UnitTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

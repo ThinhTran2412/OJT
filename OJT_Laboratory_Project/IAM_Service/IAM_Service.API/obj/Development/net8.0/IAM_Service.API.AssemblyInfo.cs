@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IAM_Service.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Development")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44aa506f82894d054fa3d238393c072680b8a41e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b6105337b3f8ef2b3bb6488640847025a59ea9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("IAM_Service.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IAM_Service.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

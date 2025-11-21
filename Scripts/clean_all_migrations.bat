@@ -1,6 +1,6 @@
 @echo off
 REM ====================================================================
-REM Master script to CLEAR all migrations and snapshots for ALL services
+REM Script to CLEAR all migrations and snapshots for ALL services
 REM in OJT_Laboratory_Project
 REM ====================================================================
 REM WARNING: This script will DELETE all migration files and snapshots!
@@ -9,8 +9,9 @@ REM ====================================================================
 
 setlocal enabledelayedexpansion
 
-REM Change to script directory (OJT_Laboratory_Project root)
-cd /d "%~dp0OJT_Laboratory_Project"
+REM Change to OJT_Laboratory_Project directory
+set PROJECT_ROOT=%~dp0..\OJT_Laboratory_Project
+cd /d "%PROJECT_ROOT%"
 
 if not exist "IAM_Service" (
     powershell -Command "Write-Host 'Error: OJT_Laboratory_Project folder not found!' -ForegroundColor DarkRed"
@@ -32,7 +33,7 @@ REM 1. Clear IAM_Service Migrations
 REM ====================================================================
 powershell -Command "Write-Host '[1/4] Clearing IAM_Service Migrations...' -ForegroundColor DarkCyan"
 
-cd /d "%~dp0OJT_Laboratory_Project\IAM_Service\IAM_Service.Infrastructure\Migrations"
+cd /d "%PROJECT_ROOT%\IAM_Service\IAM_Service.Infrastructure\Migrations"
 if exist "*.*" (
     del /f /q *.* 2>nul
     if %ERRORLEVEL% equ 0 (
@@ -45,7 +46,7 @@ if exist "*.*" (
     powershell -Command "Write-Host '  - No migrations found in IAM_Service' -ForegroundColor DarkYellow"
 )
 
-cd /d "%~dp0OJT_Laboratory_Project"
+cd /d "%PROJECT_ROOT%"
 echo.
 
 REM ====================================================================
@@ -53,7 +54,7 @@ REM 2. Clear Laboratory_Service Migrations
 REM ====================================================================
 powershell -Command "Write-Host '[2/4] Clearing Laboratory_Service Migrations...' -ForegroundColor DarkCyan"
 
-cd /d "%~dp0OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.Infrastructure\Migrations"
+cd /d "%PROJECT_ROOT%\Laboratory_Service\Laboratory_Service.Infrastructure\Migrations"
 if exist "*.*" (
     del /f /q *.* 2>nul
     if %ERRORLEVEL% equ 0 (
@@ -66,7 +67,7 @@ if exist "*.*" (
     powershell -Command "Write-Host '  - No migrations found in Laboratory_Service' -ForegroundColor DarkYellow"
 )
 
-cd /d "%~dp0OJT_Laboratory_Project"
+cd /d "%PROJECT_ROOT%"
 echo.
 
 REM ====================================================================
@@ -74,7 +75,7 @@ REM 3. Clear Monitoring_Service Migrations
 REM ====================================================================
 powershell -Command "Write-Host '[3/4] Clearing Monitoring_Service Migrations...' -ForegroundColor DarkCyan"
 
-cd /d "%~dp0OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.Infastructure\Migrations"
+cd /d "%PROJECT_ROOT%\Monitoring_Service\Monitoring_Service.Infastructure\Migrations"
 if exist "*.*" (
     del /f /q *.* 2>nul
     if %ERRORLEVEL% equ 0 (
@@ -87,7 +88,7 @@ if exist "*.*" (
     powershell -Command "Write-Host '  - No migrations found in Monitoring_Service' -ForegroundColor DarkYellow"
 )
 
-cd /d "%~dp0OJT_Laboratory_Project"
+cd /d "%PROJECT_ROOT%"
 echo.
 
 REM ====================================================================
@@ -95,7 +96,7 @@ REM 4. Clear Simulator_Service Migrations
 REM ====================================================================
 powershell -Command "Write-Host '[4/4] Clearing Simulator_Service Migrations...' -ForegroundColor DarkCyan"
 
-cd /d "%~dp0OJT_Laboratory_Project\Simulator_Service\Simulator.Infastructure\Migrations"
+cd /d "%PROJECT_ROOT%\Simulator_Service\Simulator.Infastructure\Migrations"
 if exist "*.*" (
     del /f /q *.* 2>nul
     if %ERRORLEVEL% equ 0 (
@@ -108,7 +109,7 @@ if exist "*.*" (
     powershell -Command "Write-Host '  - No migrations found in Simulator_Service' -ForegroundColor DarkYellow"
 )
 
-cd /d "%~dp0OJT_Laboratory_Project"
+cd /d "%PROJECT_ROOT%"
 echo.
 
 REM ====================================================================
@@ -122,6 +123,6 @@ powershell -Command "Write-Host '===============================================
 echo.
 
 powershell -Command "Write-Host 'All migrations cleared successfully! ✓' -ForegroundColor DarkGreen"
-powershell -Command "Write-Host 'You can now create new migrations with: create_all_migrations.bat' -ForegroundColor Yellow"
+powershell -Command "Write-Host 'You can now create new migrations with: Scripts_Database_Dev\create_migrations_dev.bat' -ForegroundColor Yellow"
 exit /b 0
 

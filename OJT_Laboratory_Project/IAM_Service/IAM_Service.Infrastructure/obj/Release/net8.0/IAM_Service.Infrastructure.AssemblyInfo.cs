@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IAM_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55a25166046a4b5d9f01b17f023fd162a0b86f0b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e234f1bb5aeae48de9cd93d2d731068a973c8eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("IAM_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IAM_Service.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

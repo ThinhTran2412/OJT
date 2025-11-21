@@ -276,3 +276,4 @@ F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\La
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.API\obj\Release\net8.0\Laboratory_Service.API.pdb
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.API\obj\Release\net8.0\Laboratory_Service.API.genruntimeconfig.cache
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.API\obj\Release\net8.0\ref\Laboratory_Service.API.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Laboratory_Service\Laboratory_Service.API\bin\Release\net8.0\appsettings.Production.json

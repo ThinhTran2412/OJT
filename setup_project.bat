@@ -126,22 +126,14 @@ call .\install_npm.bat
 
 cd ..
 
-REM --- Step 17: Copy Database Scripts to OJT_Laboratory_Project ---
-echo [17/17] Copying database migration scripts...
-if exist "clear_all_migrations.bat" (
-    copy /Y "clear_all_migrations.bat" "OJT_Laboratory_Project\" >nul 2>&1
-    echo   - Copied clear_all_migrations.bat
-)
-if exist "create_all_migrations.bat" (
-    copy /Y "create_all_migrations.bat" "OJT_Laboratory_Project\" >nul 2>&1
-    echo   - Copied create_all_migrations.bat
-)
-if exist "update_all_databases.bat" (
-    copy /Y "update_all_databases.bat" "OJT_Laboratory_Project\" >nul 2>&1
-    echo   - Copied update_all_databases.bat
-)
-if exist "Scripts_Database_Dev\create_migrations_dev.bat" (
-    copy /Y "Scripts_Database_Dev\create_migrations_dev.bat" "OJT_Laboratory_Project\" >nul 2>&1
+REM --- Step 17: Database Scripts are already in place ---
+echo [17/17] Database scripts are organized in Scripts_Database_Dev and Scripts_Database_Pro...
+echo   - Scripts_Database_Dev\create_migrations_dev.bat
+echo   - Scripts_Database_Dev\update_databases_dev.bat
+echo   - Scripts_Database_Pro\create_migrations_prod.bat
+echo   - Scripts_Database_Pro\update_databases_prod.bat
+echo   - Scripts\clean_all_migrations.bat (for cleaning all migrations)
+echo.
     echo   - Copied create_migrations_dev.bat (from Scripts_Database_Dev)
 )
 if exist "Scripts_Database_Dev\update_databases_dev.bat" (
