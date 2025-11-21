@@ -10,15 +10,18 @@ REM ====================================================================
 
 setlocal enabledelayedexpansion
 
-REM Check if migration name is provided
+REM Get migration name from argument or prompt user to input
 if "%~1"=="" (
-    powershell -Command "Write-Host 'Error: Migration name is required!' -ForegroundColor DarkRed"
-    powershell -Command "Write-Host 'Usage: create_migration.bat \"MigrationName\"' -ForegroundColor Yellow"
-    powershell -Command "Write-Host 'Example: create_migration.bat \"AddNewTable\"' -ForegroundColor Yellow"
-    exit /b 1
+    powershell -Command "Write-Host ''"
+    powershell -Command "Write-Host 'Enter migration name:' -ForegroundColor Cyan -NoNewline"
+    set /p MIGRATION_NAME=
+    if "!MIGRATION_NAME!"=="" (
+        powershell -Command "Write-Host 'Error: Migration name cannot be empty!' -ForegroundColor DarkRed"
+        exit /b 1
+    )
+) else (
+    set MIGRATION_NAME=%~1
 )
-
-set MIGRATION_NAME=%~1
 
 REM Change to Laboratory_Service directory (go up two levels from pro folder)
 cd /d "%~dp0\..\.."

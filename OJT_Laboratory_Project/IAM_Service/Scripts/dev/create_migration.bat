@@ -9,15 +9,19 @@ REM ====================================================================
 
 setlocal enabledelayedexpansion
 
-REM Check if migration name is provided
+REM Get migration name from argument or prompt user to input
 if "%~1"=="" (
-    powershell -Command "Write-Host 'Error: Migration name is required!' -ForegroundColor DarkRed"
-    powershell -Command "Write-Host 'Usage: create_migration.bat \"MigrationName\"' -ForegroundColor Yellow"
-    powershell -Command "Write-Host 'Example: create_migration.bat \"AddNewTable\"' -ForegroundColor Yellow"
-    exit /b 1
+    powershell -Command "$name = Read-Host 'Enter migration name'; Set-Content -Path 'migration_temp.txt' -Value $name -NoNewline"
+    if exist "migration_temp.txt" (
+        set /p MIGRATION_NAME=<migration_temp.txt
+        del "migration_temp.txt"
+    ) else (
+        powershell -Command "Write-Host 'Error: Migration name is required!' -ForegroundColor DarkRed"
+        exit /b 1
+    )
+) else (
+    set MIGRATION_NAME=%~1
 )
-
-set MIGRATION_NAME=%~1
 
 REM Change to IAM_Service directory (go up two levels from dev folder)
 cd /d "%~dp0\..\.."
