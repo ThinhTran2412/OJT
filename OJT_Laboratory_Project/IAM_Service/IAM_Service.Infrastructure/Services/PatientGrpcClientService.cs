@@ -36,10 +36,6 @@ namespace IAM_Service.Infrastructure.Services
 
             var isHttps = grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
             
-            // Always enable HTTP/2 unencrypted support for gRPC inter-service communication on Render
-            // This avoids Render load balancer downgrading HTTP/2 to HTTP/1.1 when forwarding HTTPS -> HTTP
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
             // Configure HTTP handler for gRPC connections
             var httpHandler = new System.Net.Http.SocketsHttpHandler
             {
@@ -49,14 +45,21 @@ namespace IAM_Service.Infrastructure.Services
                 PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan
             };
 
-            // On Render, use HTTP public URL for inter-service gRPC to avoid load balancer HTTP/2 issues
-            // If using HTTPS, trust server certificate (should not happen for inter-service gRPC on Render)
+            // On Render, use HTTPS public URLs for gRPC inter-service communication
+            // Render load balancer handles SSL termination and forwards with HTTP/2 if server supports it
+            // gRPC over HTTPS will automatically negotiate HTTP/2 via ALPN
             if (isHttps)
             {
+                // For HTTPS, trust server certificate (Render load balancer certificate)
                 httpHandler.SslOptions = new SslClientAuthenticationOptions
                 {
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                 };
+            }
+            else
+            {
+                // For HTTP (development), enable unencrypted HTTP/2 support
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             }
 
             var channelOptions = new GrpcChannelOptions

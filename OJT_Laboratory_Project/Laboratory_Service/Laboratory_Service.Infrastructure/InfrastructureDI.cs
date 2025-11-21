@@ -86,18 +86,21 @@ namespace Laboratory_Service.Infrastructure
                     ConnectTimeout = TimeSpan.FromSeconds(30) // Connection timeout
                 };
 
-                // On Render, use HTTP public URL with HTTP/2 unencrypted support for gRPC
-                // This avoids Render load balancer downgrading HTTP/2 to HTTP/1.1 when forwarding HTTPS -> HTTP
-                // Always enable HTTP/2 unencrypted support for gRPC inter-service communication
-                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-                
+                // On Render, use HTTPS public URLs for gRPC inter-service communication
+                // Render load balancer handles SSL termination and forwards with HTTP/2 if server supports it
+                // gRPC over HTTPS will automatically negotiate HTTP/2 via ALPN (Application-Layer Protocol Negotiation)
                 if (isHttps)
                 {
-                    // If using HTTPS, trust server certificate (should not happen on Render for inter-service gRPC)
+                    // For HTTPS, trust server certificate (Render load balancer certificate)
                     httpHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
                     {
                         RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                     };
+                }
+                else
+                {
+                    // For HTTP (development), enable unencrypted HTTP/2 support
+                    AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
                 }
 
                 options.HttpHandler = httpHandler;
