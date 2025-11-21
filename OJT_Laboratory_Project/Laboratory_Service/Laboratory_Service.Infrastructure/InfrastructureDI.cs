@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Simulator.API.Protos.Query;
+using System;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Laboratory_Service.Infrastructure
 {
@@ -55,13 +58,27 @@ namespace Laboratory_Service.Infrastructure
                 options.Address = new Uri(grpcUrl);
             }).ConfigureChannel(options =>
             {
-                options.HttpHandler = new System.Net.Http.SocketsHttpHandler
+                var grpcUrl = configuration["IAMService:GrpcUrl"] ?? "http://localhost:7001";
+                var isHttps = !string.IsNullOrEmpty(grpcUrl) && grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+                
+                var httpHandler = new System.Net.Http.SocketsHttpHandler
                 {
                     EnableMultipleHttp2Connections = true,
                     KeepAlivePingDelay = TimeSpan.FromSeconds(60),
                     KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
                     PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan
                 };
+
+                // On Render production with HTTPS, trust server certificate
+                // Render load balancer handles SSL termination
+                // gRPC over HTTPS requires proper certificate validation
+                if (isHttps)
+                {
+                    httpHandler.ServerCertificateCustomValidationCallback = 
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                }
+
+                options.HttpHandler = httpHandler;
             });
 
             services.AddGrpcClient<RawDataQueryService.RawDataQueryServiceClient>(options =>

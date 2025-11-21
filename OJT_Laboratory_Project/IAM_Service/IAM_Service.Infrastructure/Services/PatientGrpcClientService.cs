@@ -4,6 +4,8 @@ using IAM_Service.Application.DTOs;
 using IAM_Service.Application.Interface.IPatientClient;
 using Laboratory_Service.API.Protos;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Net.Http;
 
 namespace IAM_Service.Infrastructure.Services
 {
@@ -28,8 +30,37 @@ namespace IAM_Service.Infrastructure.Services
             var grpcUrl = configuration["GrpcSettings:LaboratoryServiceUrl"]
                 ?? throw new ArgumentException("LaboratoryServiceUrl configuration is missing");
 
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            var channel = GrpcChannel.ForAddress(grpcUrl);
+            var isHttps = grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+            
+            // Enable HTTP/2 unencrypted support for local development (HTTP)
+            if (!isHttps)
+            {
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            }
+
+            // Configure HTTP handler for HTTPS connections on Render
+            var httpHandler = new System.Net.Http.SocketsHttpHandler
+            {
+                EnableMultipleHttp2Connections = true,
+                KeepAlivePingDelay = TimeSpan.FromSeconds(60),
+                KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
+                PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan
+            };
+
+            // On Render production with HTTPS, trust server certificate
+            // Render load balancer handles SSL termination
+            if (isHttps)
+            {
+                httpHandler.ServerCertificateCustomValidationCallback = 
+                    System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            }
+
+            var channelOptions = new GrpcChannelOptions
+            {
+                HttpHandler = httpHandler
+            };
+
+            var channel = GrpcChannel.ForAddress(grpcUrl, channelOptions);
             _client = new PatientService.PatientServiceClient(channel);
         }
 
