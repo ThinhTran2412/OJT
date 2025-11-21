@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Simulator.API.Protos.Query;
 using System;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
@@ -70,15 +71,24 @@ namespace Laboratory_Service.Infrastructure
                     ConnectTimeout = TimeSpan.FromSeconds(30) // Connection timeout
                 };
 
-                // On Render production with HTTPS, trust server certificate
+                // On Render production with HTTPS, trust server certificate and force HTTP/2
                 // Render load balancer handles SSL termination
-                // gRPC over HTTPS requires proper certificate validation
+                // gRPC over HTTPS requires proper certificate validation and HTTP/2 protocol
                 if (isHttps)
                 {
                     httpHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
                     {
                         RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                     };
+                    
+                    // Force HTTP/2 for gRPC over HTTPS
+                    httpHandler.DefaultRequestVersion = System.Net.HttpVersion.Version20;
+                    httpHandler.DefaultVersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact;
+                }
+                else
+                {
+                    // For HTTP, enable unencrypted HTTP/2 support
+                    AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
                 }
 
                 options.HttpHandler = httpHandler;
