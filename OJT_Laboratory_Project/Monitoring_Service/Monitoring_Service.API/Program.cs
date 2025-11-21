@@ -7,6 +7,7 @@ using Monitoring_Service.Infastructure.Repository;
 using Monitoring_Service.Infrastructure.RabbitMQ;
 using MediatR;
 using System.Reflection;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,15 +15,31 @@ var builder = WebApplication.CreateBuilder(args);
 // Disable HTTPS in production - Render handles HTTPS at the load balancer level
 if (builder.Environment.IsProduction())
 {
-    builder.WebHost.ConfigureKestrel(options =>
+    // Remove HTTPS endpoint completely from configuration before Kestrel loads it
+    // This prevents HTTPS endpoint from appsettings.json from being loaded
+    var httpsSection = builder.Configuration.GetSection("Kestrel:Endpoints:Https");
+    if (httpsSection.Exists())
     {
-        // Configure only HTTP endpoint using PORT from environment variable
-        // This overrides any HTTPS configuration from appsettings.json
+        // Remove all child keys from HTTPS section to completely remove it
+        foreach (var child in httpsSection.GetChildren().ToList())
+        {
+            builder.Configuration[$"Kestrel:Endpoints:Https:{child.Key}"] = null;
+        }
+        // Also remove the section itself if possible
+        builder.Configuration["Kestrel:Endpoints:Https"] = null;
+    }
+    
+    // Use UseKestrel instead of ConfigureKestrel to completely replace configuration
+    builder.WebHost.UseKestrel(options =>
+    {
+        // Clear all existing endpoints and configure only HTTP endpoint
+        // This completely overrides any HTTPS configuration from appsettings.json
         var port = Environment.GetEnvironmentVariable("PORT");
         var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
         options.ListenAnyIP(portNumber, listenOptions =>
         {
-            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+            // Use Http1 instead of Http1AndHttp2 to avoid HTTPS configuration issues
+            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
         });
     });
     
@@ -70,8 +87,13 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(HandleRawTestResultCommand).Assembly);
 });
 
-// Add Hosted Services
-builder.Services.AddHostedService<RabbitMQConsumer>();
+// Add Hosted Services - only if RabbitMQ is configured
+// In Production, RabbitMQ might not be available, so we check configuration first
+var rabbitMQHostName = builder.Configuration["RabbitMQ:HostName"];
+if (!string.IsNullOrEmpty(rabbitMQHostName))
+{
+    builder.Services.AddHostedService<RabbitMQConsumer>();
+}
 
 // Add Repositories
 builder.Services.AddScoped<IRawResultRepository, RawResultRepository>();
