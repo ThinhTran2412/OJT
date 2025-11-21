@@ -60,7 +60,12 @@ namespace IAM_Service.API.Services
         {
             try
             {
-                _logger.LogInformation("Received request for user with IdentifyNumber: {IdentifyNumber}", request.IdentifyNumber);
+                _logger.LogInformation("[gRPC Server] Received request for user with IdentifyNumber: {IdentifyNumber}", request.IdentifyNumber);
+                _logger.LogInformation("[gRPC Server Debug] Request context - Host: {Host}, Method: {Method}, Protocol: {Protocol}", 
+                    context.Host, context.Method, context.RequestHeaders.GetValue(":scheme")?.Value ?? "unknown");
+                _logger.LogInformation("[gRPC Server Debug] Request headers - User-Agent: {UserAgent}, Content-Type: {ContentType}",
+                    context.RequestHeaders.GetValue("user-agent")?.Value ?? "unknown",
+                    context.RequestHeaders.GetValue("content-type")?.Value ?? "unknown");
 
                 // Send Query via Mediator.
                 var query = new GetUserDetailByIdentifyQuery(request.IdentifyNumber);
@@ -173,6 +178,9 @@ namespace IAM_Service.API.Services
         {
             try
             {
+                _logger.LogInformation("[gRPC Server] Received CreateUser request for IdentifyNumber: {IdentifyNumber}", request.IdentifyNumber);
+                _logger.LogInformation("[gRPC Server Debug] Request context - Host: {Host}, Method: {Method}, Protocol: {Protocol}", 
+                    context.Host, context.Method, context.RequestHeaders.GetValue(":scheme")?.Value ?? "unknown");
                 // 1. Map gRPC request -> Command
                 var command = new CreateUserCommand
                 {

@@ -56,8 +56,10 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 _logger.LogInformation("[gRPC Debug] gRPC Client Type: {ClientType}", _userServiceClient.GetType().FullName);
 
                 var request = new GetUserByIdentifyNumberRequest { IdentifyNumber = identifyNumber };
-                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                // Increase timeout to 60 seconds for Render HTTPS public URL calls
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(60)); // 60 second timeout
                 _logger.LogInformation("[gRPC Debug] Starting gRPC call with deadline: {Deadline}", callOptions.Deadline);
+                _logger.LogInformation("[gRPC Debug] Request IdentifyNumber: {IdentifyNumber}", identifyNumber);
                 
                 var response = await _userServiceClient.GetUserByIdentifyNumberAsync(request, callOptions);
                 
@@ -201,8 +203,10 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 };
 
                 // 2️⃣ Call gRPC Service
-                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                // Increase timeout to 60 seconds for Render HTTPS public URL calls
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(60)); // 60 second timeout
                 _logger.LogInformation("[gRPC Debug] Starting gRPC CreateUser call with deadline: {Deadline}", callOptions.Deadline);
+                _logger.LogInformation("[gRPC Debug] Request IdentifyNumber: {IdentifyNumber}", userDetails.IdentifyNumber);
                 var response = await _userServiceClient.CreateUserAsync(request, callOptions);
                 _logger.LogInformation("[gRPC Debug] gRPC CreateUser call completed successfully");
 
