@@ -71,19 +71,16 @@ namespace Laboratory_Service.Infrastructure
                     ConnectTimeout = TimeSpan.FromSeconds(30) // Connection timeout
                 };
 
-                // On Render production with HTTPS, trust server certificate and force HTTP/2
+                // On Render production with HTTPS, trust server certificate
                 // Render load balancer handles SSL termination
-                // gRPC over HTTPS requires proper certificate validation and HTTP/2 protocol
+                // Note: Render load balancer may not preserve HTTP/2 for HTTPS -> HTTP forwarding
+                // gRPC over HTTPS will automatically negotiate HTTP/2 via ALPN if supported
                 if (isHttps)
                 {
                     httpHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
                     {
                         RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                     };
-                    
-                    // Force HTTP/2 for gRPC over HTTPS
-                    httpHandler.DefaultRequestVersion = System.Net.HttpVersion.Version20;
-                    httpHandler.DefaultVersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact;
                 }
                 else
                 {
