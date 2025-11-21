@@ -47,15 +47,15 @@ if (builder.Environment.IsProduction())
     // Use UseKestrel instead of ConfigureKestrel to completely replace configuration
     builder.WebHost.UseKestrel(options =>
     {
-        // Clear all existing endpoints and configure only HTTP endpoint with Http1AndHttp2
+        // Clear all existing endpoints and configure only HTTP endpoint with Http1
         // This completely overrides any configuration from appsettings.json
-        // Http1AndHttp2 supports both HTTP (Http1) and gRPC (Http2) on the same port
+        // Use Http1 for HTTP endpoints - gRPC can work with Http1 protocol
         var port = Environment.GetEnvironmentVariable("PORT");
         var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
         options.ListenAnyIP(portNumber, listenOptions =>
         {
-            // Use Http1AndHttp2 to support both HTTP and gRPC on same port
-            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+            // Use Http1 only - avoid Http1AndHttp2 as it causes issues
+            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
         });
     });
     
