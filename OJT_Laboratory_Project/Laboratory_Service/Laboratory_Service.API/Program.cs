@@ -3,6 +3,8 @@ using Laboratory_Service.Application.Interface;
 using Laboratory_Service.Application.Services;
 using Laboratory_Service.Infrastructure;
 using Laboratory_Service.Infrastructure.Services;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MyCompany.Authorization.Setup;
 using SharedLibrary.DependencyInjection;
@@ -130,8 +132,24 @@ namespace Laboratory_Service.API
                 {
                     errorApp.Run(async context =>
                     {
+                        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+                        var exception = exceptionHandlerPathFeature?.Error;
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                        
+                        // Log the exception with full details
+                        if (exception != null)
+                        {
+                            logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
+                        }
+                        else
+                        {
+                            logger.LogError("Unknown error occurred");
+                        }
+                        
                         context.Response.StatusCode = 500;
                         context.Response.ContentType = "application/json";
+                        
+                        // In production, return generic message but log details
                         var response = new { message = "An error occurred while processing your request." };
                         await context.Response.WriteAsJsonAsync(response);
                     });
