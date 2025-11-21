@@ -45,11 +45,11 @@ namespace Laboratory_Service.Application
             // Register IAM Service
             services.AddHttpClient<IIAMService, IAMService>(client =>
             {
-                string? iamBaseUrl = configuration["ServiceUrls:IAMService"];
+                string? iamBaseUrl = configuration["IAMService:BaseUrl"];
 
                 if (string.IsNullOrEmpty(iamBaseUrl))
                 {
-                    throw new InvalidOperationException("Thiếu cấu hình: 'ServiceUrls:IAMService' không được tìm thấy. Vui lòng kiểm tra appsettings.json.");
+                    throw new InvalidOperationException("Thiếu cấu hình: 'IAMService:BaseUrl' không được tìm thấy. Vui lòng kiểm tra appsettings.json.");
                 }
                 client.BaseAddress = new Uri(iamBaseUrl);
             });
