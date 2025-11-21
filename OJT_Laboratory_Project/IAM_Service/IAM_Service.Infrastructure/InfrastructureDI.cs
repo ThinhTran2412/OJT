@@ -51,7 +51,11 @@ namespace IAM_Service.Infrastructure
                 // Set schema vào static property của AppDbContext
                 Data.AppDbContext.SchemaName = schemaName;
 
-                options.UseNpgsql(connectionString)
+                options.UseNpgsql(connectionString, npgsqlOptions =>
+                {
+                    // Cấu hình migration history table vào schema riêng
+                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", schemaName);
+                })
                     .AddInterceptors(interceptor);
             });
 

@@ -238,7 +238,7 @@ namespace Laboratory_Service.Infrastructure.Data
                     .HasMaxLength(2000);
 
                 entity.Property(x => x.CreatedDate)
-                    .HasDefaultValueSql("GETUTCDATE()");
+                    .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
 
                 entity.HasOne<TestOrder>()
                       .WithMany()

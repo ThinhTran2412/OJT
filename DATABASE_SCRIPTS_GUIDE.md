@@ -258,11 +258,80 @@ Do you want to reset database migrations? (y/n):
    ```
 
 3. **Apply migrations (Production):**
+   
+   **Option 1: Update tất cả services:**
    ```batch
    cd Deploy
    update_databases_prod.bat
    ```
+   
+   **Option 2: Update riêng từng service:**
+   ```batch
+   cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+   update_prod.bat
+   ```
    (Hoặc đợi Render tự động deploy nếu đã cấu hình)
+
+---
+
+### Sử dụng Scripts Riêng cho Từng Service
+
+#### Laboratory_Service
+
+**Tạo migration mới:**
+
+**Option 1: Development (khuyến nghị - test local trước):**
+```batch
+cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+create_migration.bat
+```
+Script sẽ hỏi bạn nhập tên migration. Hoặc có thể truyền trực tiếp:
+```batch
+create_migration.bat "InitialCreate"
+```
+
+**Option 2: Production (tạo migration trực tiếp với Render DB):**
+```batch
+cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+create_migration_prod.bat
+```
+Script sẽ hỏi bạn nhập tên migration. Hoặc có thể truyền trực tiếp:
+```batch
+create_migration_prod.bat "InitialCreate"
+```
+⚠️ **Lưu ý:** Nên tạo migration với Development config để test local trước, sau đó apply cho Production.
+
+**Xóa tất cả migrations:**
+```batch
+cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+clean_migrations.bat
+```
+
+**Update Development database:**
+```batch
+cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+update_dev.bat
+```
+
+**Update Production database:**
+```batch
+cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+update_prod.bat
+```
+
+**Workflow điển hình:**
+
+**Workflow 1: Development First (Khuyến nghị)**
+1. Tạo migration với Dev config: `create_migration.bat` (script sẽ hỏi tên migration)
+2. Test trên Dev: `update_dev.bat`
+3. Commit và push migrations
+4. Apply lên Production: `update_prod.bat`
+
+**Workflow 2: Production Direct (Khi deploy lần đầu)**
+1. Tạo migration với Prod config: `create_migration_prod.bat` (script sẽ hỏi tên migration)
+2. Review migration files
+3. Commit và push migrations
+4. Apply lên Production: `update_prod.bat`
 
 ---
 
@@ -296,12 +365,32 @@ Do you want to reset database migrations? (y/n):
 
 ## 📍 Vị trí Scripts
 
-- **Thư mục gốc (Deploy):** Scripts được đặt ở đây để có sẵn khi pull code về
+### Scripts Tổng (Root Deploy)
+- **Thư mục:** `Deploy/`
+- **Scripts:** Tất cả các script tổng (cho tất cả services)
+  - `clear_all_migrations.bat`
+  - `create_all_migrations.bat`
+  - `create_migrations_dev.bat`
+  - `create_migrations_prod.bat`
+  - `update_all_databases.bat`
+  - `update_databases_dev.bat`
+  - `update_databases_prod.bat`
 - **Sau khi setup:** Scripts được copy vào `OJT_Laboratory_Project` để sử dụng
 
-Các scripts có thể được chạy từ cả 2 vị trí:
-- Từ `Deploy/` - tự động tìm `OJT_Laboratory_Project`
-- Từ `OJT_Laboratory_Project/` - chạy trực tiếp trong project folder
+### Scripts Riêng (Từng Service)
+- **Thư mục:** `OJT_Laboratory_Project/{Service_Name}/Scripts/`
+- **Scripts:** Script riêng cho từng service
+  - **Laboratory_Service:**
+    - `Scripts/create_migration.bat` - Tạo migration mới (Development - khuyến nghị)
+    - `Scripts/create_migration_prod.bat` - Tạo migration mới (Production - Render DB)
+    - `Scripts/clean_migrations.bat` - Xóa tất cả migrations
+    - `Scripts/update_dev.bat` - Update development database
+    - `Scripts/update_prod.bat` - Update production database (Render)
+    - `Scripts/fix_schema.bat` - Fix missing schema (tự động tạo schema và chạy migration)
+
+Các scripts có thể được chạy từ:
+- **Scripts tổng:** Từ `Deploy/` hoặc `OJT_Laboratory_Project/`
+- **Scripts riêng:** Từ thư mục `Scripts/` của service tương ứng
 
 ---
 
@@ -340,7 +429,25 @@ Các scripts có thể được chạy từ cả 2 vị trí:
 
 ### Lỗi: "OJT_Laboratory_Project folder not found"
 - Chạy `setup_project.bat` trước để tạo project structure
-- Đảm bảo đang chạy script từ thư mục `Deploy`
+- Đảm bảo đang chạy script từ thư mục `Deploy` (cho scripts tổng)
+
+### Cập nhật database cho một service cụ thể
+- Sử dụng script riêng trong thư mục `Scripts/` của service:
+  ```batch
+  cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+  update_prod.bat
+  ```
+
+### Không thấy schema sau khi migration
+- Migration đã chạy nhưng schema `laboratory_service` không tồn tại
+- **Nguyên nhân:** Schema chưa được tạo trong database
+- **Giải pháp:** Chạy script tự động fix:
+  ```batch
+  cd OJT_Laboratory_Project/Laboratory_Service/Scripts
+  fix_schema.bat
+  ```
+- Script này sẽ tự động tạo schema và chạy migration
+- Sau đó refresh database tool để thấy schema
 
 ---
 
@@ -357,13 +464,18 @@ Các scripts có thể được chạy từ cả 2 vị trí:
 
 ## 🚀 Quick Reference
 
-| Script | Environment | Purpose |
-|--------|-------------|---------|
-| `clear_all_migrations.bat` | - | Xóa tất cả migrations |
-| `create_all_migrations.bat "Name"` | Development | Tạo migrations mới (mặc định) |
-| `create_migrations_dev.bat "Name"` | Development | Tạo migrations mới (Dev DB) |
-| `create_migrations_prod.bat "Name"` | Production | Tạo migrations mới (Render DB) |
-| `update_all_databases.bat` | Development | Apply migrations (mặc định) |
-| `update_databases_dev.bat` | Development | Apply migrations (Dev DB) |
-| `update_databases_prod.bat` | Production | Apply migrations (Render DB) |
+| Script | Location | Environment | Purpose |
+|--------|----------|-------------|---------|
+| `clear_all_migrations.bat` | Deploy/ | - | Xóa tất cả migrations |
+| `create_all_migrations.bat "Name"` | Deploy/ | Development | Tạo migrations mới (mặc định) |
+| `create_migrations_dev.bat "Name"` | Deploy/ | Development | Tạo migrations mới (Dev DB) |
+| `create_migrations_prod.bat "Name"` | Deploy/ | Production | Tạo migrations mới (Render DB) |
+| `update_all_databases.bat` | Deploy/ | Development | Apply migrations (mặc định) |
+| `update_databases_dev.bat` | Deploy/ | Development | Apply migrations (Dev DB) |
+| `update_databases_prod.bat` | Deploy/ | Production | Apply migrations (Render DB - tất cả services) |
+| `Laboratory_Service/Scripts/create_migration.bat "Name"` | Service Scripts/ | Development | Tạo migration mới (Dev - khuyến nghị) |
+| `Laboratory_Service/Scripts/create_migration_prod.bat "Name"` | Service Scripts/ | Production | Tạo migration mới (Prod - Render DB) |
+| `Laboratory_Service/Scripts/clean_migrations.bat` | Service Scripts/ | - | Xóa tất cả migrations (chỉ Laboratory_Service) |
+| `Laboratory_Service/Scripts/update_dev.bat` | Service Scripts/ | Development | Apply migrations (Dev DB - chỉ Laboratory_Service) |
+| `Laboratory_Service/Scripts/update_prod.bat` | Service Scripts/ | Production | Apply migrations (Render DB - chỉ Laboratory_Service) |
 
