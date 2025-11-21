@@ -6,6 +6,7 @@ using Laboratory_Service.API.Protos;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
+using System.Net.Security;
 
 namespace IAM_Service.Infrastructure.Services
 {
@@ -51,8 +52,10 @@ namespace IAM_Service.Infrastructure.Services
             // Render load balancer handles SSL termination
             if (isHttps)
             {
-                httpHandler.ServerCertificateCustomValidationCallback = 
-                    System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                httpHandler.SslOptions = new SslClientAuthenticationOptions
+                {
+                    RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                };
             }
 
             var channelOptions = new GrpcChannelOptions

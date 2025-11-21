@@ -74,8 +74,10 @@ namespace Laboratory_Service.Infrastructure
                 // gRPC over HTTPS requires proper certificate validation
                 if (isHttps)
                 {
-                    httpHandler.ServerCertificateCustomValidationCallback = 
-                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                    httpHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                    };
                 }
 
                 options.HttpHandler = httpHandler;
