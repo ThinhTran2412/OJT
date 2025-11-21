@@ -66,7 +66,8 @@ namespace Laboratory_Service.Infrastructure
                     EnableMultipleHttp2Connections = true,
                     KeepAlivePingDelay = TimeSpan.FromSeconds(60),
                     KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
-                    PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan
+                    PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
+                    ConnectTimeout = TimeSpan.FromSeconds(30) // Connection timeout
                 };
 
                 // On Render production with HTTPS, trust server certificate
@@ -81,6 +82,9 @@ namespace Laboratory_Service.Infrastructure
                 }
 
                 options.HttpHandler = httpHandler;
+                // Set max send/receive message size
+                options.MaxReceiveMessageSize = 6 * 1024 * 1024; // 6 MB
+                options.MaxSendMessageSize = 6 * 1024 * 1024;    // 6 MB
             });
 
             services.AddGrpcClient<RawDataQueryService.RawDataQueryServiceClient>(options =>

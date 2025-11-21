@@ -55,7 +55,8 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 _logger.LogInformation("Getting user from IAM Service by IdentifyNumber: {IdentifyNumber}", identifyNumber);
 
                 var request = new GetUserByIdentifyNumberRequest { IdentifyNumber = identifyNumber };
-                var response = await _userServiceClient.GetUserByIdentifyNumberAsync(request);
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                var response = await _userServiceClient.GetUserByIdentifyNumberAsync(request, callOptions);
 
                 if (response.Success && response.User != null)
                 {
@@ -88,7 +89,8 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 _logger.LogInformation("Checking user existence in IAM Service by IdentifyNumber: {IdentifyNumber}", identifyNumber);
 
                 var request = new CheckUserExistsRequest { IdentifyNumber = identifyNumber };
-                var response = await _userServiceClient.CheckUserExistsAsync(request);
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                var response = await _userServiceClient.CheckUserExistsAsync(request, callOptions);
 
                 if (response.Success)
                 {
@@ -123,7 +125,8 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 var request = new GetUsersByIdentifyNumbersRequest();
                 request.IdentifyNumbers.AddRange(identifyNumbers);
 
-                var response = await _userServiceClient.GetUsersByIdentifyNumbersAsync(request);
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                var response = await _userServiceClient.GetUsersByIdentifyNumbersAsync(request, callOptions);
 
                 if (response.Success)
                 {
@@ -170,7 +173,8 @@ namespace Laboratory_Service.Infrastructure.GrpcClients
                 };
 
                 // 2️⃣ Call gRPC Service
-                var response = await _userServiceClient.CreateUserAsync(request);
+                var callOptions = new Grpc.Core.CallOptions(deadline: DateTime.UtcNow.AddSeconds(30)); // 30 second timeout
+                var response = await _userServiceClient.CreateUserAsync(request, callOptions);
 
                 // 3️⃣ Handle response
                 if (response.Success)

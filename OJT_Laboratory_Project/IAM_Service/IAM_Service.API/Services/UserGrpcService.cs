@@ -5,12 +5,14 @@ using IAM_Service.Application.DTOs.User;
 using IAM_Service.Application.Users.Command;
 using IAM_Service.Application.Users.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IAM_Service.API.Services
 {
     /// <summary>
     /// gRPC service implementation for user-related operations, acting as a thin Presentation layer.
     /// </summary>
+    [AllowAnonymous]
     public class UserGrpcService : UserService.UserServiceBase
     {
         private readonly IMediator _mediator;
