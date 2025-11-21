@@ -42,7 +42,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000, 
+  timeout: 60000, // Increased to 60 seconds for operations that may take longer (e.g., creating test orders with IAM Service calls)
   withCredentials: false,
 });
 
@@ -104,7 +104,7 @@ api.interceptors.response.use(
         const refreshClient = axios.create({
           baseURL: import.meta.env.PROD ? IAM_SERVICE_URL : "/api",
           headers: { 'Content-Type': 'application/json' },
-          timeout: 15000,
+          timeout: 60000, // Increased to 60 seconds to match main axios instance
           withCredentials: false,
         });
         

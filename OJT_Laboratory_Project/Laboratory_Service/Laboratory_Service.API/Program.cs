@@ -102,6 +102,7 @@ namespace Laboratory_Service.API
             builder.Services.AddHttpClient<IIAMService, IAMService>(client =>
             {
                 client.BaseAddress = new Uri(builder.Configuration["IAMService:BaseUrl"]!);
+                client.Timeout = TimeSpan.FromSeconds(30); // 30 second timeout for IAM Service calls
             });
             // Add application services
             builder.Services.AddApplication(builder.Configuration);

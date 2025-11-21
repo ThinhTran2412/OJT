@@ -52,6 +52,7 @@ namespace Laboratory_Service.Application
                     throw new InvalidOperationException("Thiếu cấu hình: 'IAMService:BaseUrl' không được tìm thấy. Vui lòng kiểm tra appsettings.json.");
                 }
                 client.BaseAddress = new Uri(iamBaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30); // 30 second timeout for IAM Service calls
             });
 
             // Register Patient application service (use-cases)
