@@ -119,6 +119,10 @@ namespace Laboratory_Service.API
 
             var app = builder.Build();
 
+            // CORS middleware - MUST be first, before any other middleware
+            // This ensures CORS headers are added to all responses including preflight OPTIONS requests
+            app.UseCors("AllowFrontend");
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -128,7 +132,7 @@ namespace Laboratory_Service.API
             }
             else
             {
-                // Exception handler for production - must be before CORS to preserve error response
+                // Exception handler for production - must preserve CORS headers in error responses
                 app.UseExceptionHandler(errorApp =>
                 {
                     errorApp.Run(async context =>
@@ -151,15 +155,12 @@ namespace Laboratory_Service.API
                         context.Response.ContentType = "application/json";
                         
                         // In production, return generic message but log details
+                        // CORS headers are already added by UseCors middleware above
                         var response = new { message = "An error occurred while processing your request." };
                         await context.Response.WriteAsJsonAsync(response);
                     });
                 });
             }
-
-            // CORS middleware - must be before authentication/authorization but after exception handling
-            // This ensures CORS headers are added to all responses including errors
-            app.UseCors("AllowFrontend");
 
             app.UseSharePolicies();
             app.UseAuthentication();
