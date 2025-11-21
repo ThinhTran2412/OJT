@@ -18,18 +18,30 @@ var builder = WebApplication.CreateBuilder(args);
 // Disable HTTPS in production - Render handles HTTPS at the load balancer level
 if (builder.Environment.IsProduction())
 {
-    // Use ConfigureKestrel instead of UseKestrel to properly override configuration
-    // This ensures HTTPS endpoint from appsettings.json is ignored
+    // Remove Grpc endpoint from configuration before Kestrel loads it
+    // This prevents Grpc endpoint from appsettings.json from being loaded separately
+    var grpcSection = builder.Configuration.GetSection("Kestrel:Endpoints:Grpc");
+    if (grpcSection.Exists())
+    {
+        // Remove all child keys from Grpc section
+        foreach (var child in grpcSection.GetChildren().ToList())
+        {
+            builder.Configuration[$"Kestrel:Endpoints:Grpc:{child.Key}"] = null;
+        }
+        builder.Configuration["Kestrel:Endpoints:Grpc"] = null;
+    }
+    
+    // Use ConfigureKestrel to configure single endpoint for both HTTP and gRPC
     builder.WebHost.ConfigureKestrel(options =>
     {
-        // Configure only HTTP endpoint using PORT from environment variable
-        // This overrides any HTTPS configuration from appsettings.json
+        // Configure single endpoint using PORT from environment variable
+        // This endpoint will handle both HTTP (Http1) and gRPC (Http2) traffic
         var port = Environment.GetEnvironmentVariable("PORT");
         var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
         options.ListenAnyIP(portNumber, listenOptions =>
         {
-            // Use Http1 instead of Http1AndHttp2 to avoid HTTPS configuration issues
-            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+            // Use Http1AndHttp2 to support both HTTP and gRPC on same port
+            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
         });
     });
     
