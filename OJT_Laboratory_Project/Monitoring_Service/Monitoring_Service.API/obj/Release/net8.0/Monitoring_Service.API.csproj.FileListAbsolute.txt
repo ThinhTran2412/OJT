@@ -118,3 +118,5 @@ F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Mo
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Release\net8.0\Monitoring_Service.API.pdb
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Release\net8.0\Monitoring_Service.API.genruntimeconfig.cache
 F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Release\net8.0\ref\Monitoring_Service.API.dll
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\bin\Release\net8.0\appsettings.Production.json
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\bin\Release\net8.0\Swashbuckle.AspNetCore.Annotations.dll

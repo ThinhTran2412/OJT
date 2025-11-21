@@ -18,24 +18,38 @@ var builder = WebApplication.CreateBuilder(args);
 // Disable HTTPS in production - Render handles HTTPS at the load balancer level
 if (builder.Environment.IsProduction())
 {
-    // Remove Grpc endpoint from configuration before Kestrel loads it
-    // This prevents Grpc endpoint from appsettings.json from being loaded separately
+    // Remove HTTPS and Grpc endpoints completely from configuration before Kestrel loads it
+    // This prevents endpoints from appsettings.json from being loaded
+    var httpsSection = builder.Configuration.GetSection("Kestrel:Endpoints:Https");
+    if (httpsSection.Exists())
+    {
+        // Remove all child keys from HTTPS section to completely remove it
+        foreach (var child in httpsSection.GetChildren().ToList())
+        {
+            builder.Configuration[$"Kestrel:Endpoints:Https:{child.Key}"] = null;
+        }
+        // Also remove the section itself if possible
+        builder.Configuration["Kestrel:Endpoints:Https"] = null;
+    }
+    
     var grpcSection = builder.Configuration.GetSection("Kestrel:Endpoints:Grpc");
     if (grpcSection.Exists())
     {
-        // Remove all child keys from Grpc section
+        // Remove all child keys from Grpc section to completely remove it
         foreach (var child in grpcSection.GetChildren().ToList())
         {
             builder.Configuration[$"Kestrel:Endpoints:Grpc:{child.Key}"] = null;
         }
+        // Also remove the section itself if possible
         builder.Configuration["Kestrel:Endpoints:Grpc"] = null;
     }
     
-    // Use ConfigureKestrel to configure single endpoint for both HTTP and gRPC
-    builder.WebHost.ConfigureKestrel(options =>
+    // Use UseKestrel instead of ConfigureKestrel to completely replace configuration
+    builder.WebHost.UseKestrel(options =>
     {
-        // Configure single endpoint using PORT from environment variable
-        // This endpoint will handle both HTTP (Http1) and gRPC (Http2) traffic
+        // Clear all existing endpoints and configure only HTTP endpoint with Http1AndHttp2
+        // This completely overrides any configuration from appsettings.json
+        // Http1AndHttp2 supports both HTTP (Http1) and gRPC (Http2) on the same port
         var port = Environment.GetEnvironmentVariable("PORT");
         var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
         options.ListenAnyIP(portNumber, listenOptions =>

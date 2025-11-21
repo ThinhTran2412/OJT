@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Monitoring_Service.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bceb80010ebeca820d66444e26a27c290ee7a206")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+29b11a6edabbe78c0f63b3c496422dedd7163d91")]
 [assembly: System.Reflection.AssemblyProductAttribute("Monitoring_Service.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Monitoring_Service.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
