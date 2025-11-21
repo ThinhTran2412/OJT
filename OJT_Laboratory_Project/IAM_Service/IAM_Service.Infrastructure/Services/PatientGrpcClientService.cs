@@ -28,7 +28,10 @@ namespace IAM_Service.Infrastructure.Services
         /// <exception cref="System.ArgumentException">LaboratoryServiceUrl configuration is missing</exception>
         public PatientGrpcClientService(IConfiguration configuration)
         {
-            var grpcUrl = configuration["GrpcSettings:LaboratoryServiceUrl"]
+            // On Render, prefer private service URL from environment variable for inter-service gRPC
+            // Private URLs format: http://<service-name>:8080 (e.g., http://laboratory-service:8080)
+            var grpcUrl = Environment.GetEnvironmentVariable("LABORATORY_SERVICE_GRPC_URL")
+                ?? configuration["GrpcSettings:LaboratoryServiceUrl"]
                 ?? throw new ArgumentException("LaboratoryServiceUrl configuration is missing");
 
             var isHttps = grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);

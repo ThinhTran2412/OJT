@@ -55,11 +55,17 @@ namespace Laboratory_Service.Infrastructure
 
             services.AddGrpcClient<IAM_Service.API.Protos.UserService.UserServiceClient>(options =>
             {
-                var grpcUrl = configuration["IAMService:GrpcUrl"] ?? "http://localhost:7001";
+                // On Render, prefer private service URL from environment variable for inter-service gRPC
+                // Private URLs format: http://<service-name>:8080 (e.g., http://iam-service-fz3h:8080)
+                var grpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL") 
+                    ?? configuration["IAMService:GrpcUrl"] 
+                    ?? "http://localhost:7001";
                 options.Address = new Uri(grpcUrl);
             }).ConfigureChannel(options =>
             {
-                var grpcUrl = configuration["IAMService:GrpcUrl"] ?? "http://localhost:7001";
+                var grpcUrl = Environment.GetEnvironmentVariable("IAM_SERVICE_GRPC_URL") 
+                    ?? configuration["IAMService:GrpcUrl"] 
+                    ?? "http://localhost:7001";
                 var isHttps = !string.IsNullOrEmpty(grpcUrl) && grpcUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
                 
                 var httpHandler = new System.Net.Http.SocketsHttpHandler
