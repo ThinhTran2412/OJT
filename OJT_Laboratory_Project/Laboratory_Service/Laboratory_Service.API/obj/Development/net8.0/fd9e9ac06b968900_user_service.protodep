@@ -1,0 +1,2 @@
+obj\Development\net8.0/UserService.cs \
+obj\Development\net8.0/UserServiceGrpc.cs: ../../IAM_Service/IAM_Service.API/Protos/user_service.proto

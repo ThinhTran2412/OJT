@@ -11,7 +11,7 @@ using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel for Production - use PORT from environment variable (Render default)
+// Configure Kestrel for Production FIRST - before any other services
 // Disable HTTPS in production - Render handles HTTPS at the load balancer level
 if (builder.Environment.IsProduction())
 {

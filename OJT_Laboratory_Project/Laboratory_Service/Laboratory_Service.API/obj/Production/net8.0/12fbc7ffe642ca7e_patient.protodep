@@ -1,0 +1,2 @@
+obj\Production\net8.0\Protos/Patient.cs \
+obj\Production\net8.0\Protos/PatientGrpc.cs: Protos/patient.proto

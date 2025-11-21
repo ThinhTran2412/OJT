@@ -1,0 +1,9 @@
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.csproj.AssemblyReference.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\rpswa.dswa.cache.json
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.GeneratedMSBuildEditorConfig.editorconfig
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.AssemblyInfoInputs.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.AssemblyInfo.cs
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.csproj.CoreCompileInputs.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.MvcApplicationPartsAssemblyInfo.cs
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.MvcApplicationPartsAssemblyInfo.cache
+F:\OJT_Assigment\OJT_Project\Deploy\OJT_Laboratory_Project\Monitoring_Service\Monitoring_Service.API\obj\Development\net8.0\Monitoring_Service.API.sourcelink.json

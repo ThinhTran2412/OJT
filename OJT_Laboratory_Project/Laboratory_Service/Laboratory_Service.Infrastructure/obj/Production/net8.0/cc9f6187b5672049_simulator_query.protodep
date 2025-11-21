@@ -1,0 +1,3 @@
+obj\Production\net8.0/SimulatorQuery.cs \
+obj\Production\net8.0/SimulatorQueryGrpc.cs: C:/Users/USER/.nuget/packages/grpc.tools/2.76.0/build/native/include/google/protobuf/timestamp.proto\
+ ../../Simulator_Service/Simulator.API/Protos/simulator_query.proto
