@@ -46,8 +46,9 @@ namespace Laboratory_Service.API
                     var portNumber = !string.IsNullOrEmpty(port) ? int.Parse(port) : 8080;
                     options.ListenAnyIP(portNumber, listenOptions =>
                     {
-                        // Use Http1 instead of Http1AndHttp2 to avoid HTTPS configuration issues
-                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+                        // Use Http1AndHttp2 to support gRPC over HTTP/2
+                        // This allows gRPC clients to connect via HTTP public URL with HTTP/2 unencrypted support
+                        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
                     });
                 });
                 
